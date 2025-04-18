@@ -11,7 +11,9 @@ __global__ void ParallelAdd(double* _pt1, double* _pt2, double* _r) {
     _r[tID] = _pt1[tID] + _pt2[tID];
 }
 
-extern "C" __declspec(dllexport) 
+#define EXPORTED_METHOD extern "C" __declspec(dllexport) 
+
+EXPORTED_METHOD
 void VectorAdd(double* point1, double* point2, int len, double* result)
 {
     double* dpt1;

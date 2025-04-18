@@ -26,7 +26,7 @@ namespace PointCloudDiffusion
             pManager.AddPointParameter("Result", "R", "Result", GH_ParamAccess.list);
         }
 
-        [DllImport("ParallelVectorCalculation", CallingConvention = CallingConvention.Cdec1)]
+        [DllImport("ParallelVectorCalculation.dll")]
         public static extern void VectorAdd(double[] point1, double[] point2, double[] result);
 
         protected override void SolveInstance(IGH_DataAccess DA)
