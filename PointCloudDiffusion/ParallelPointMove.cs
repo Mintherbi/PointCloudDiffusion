@@ -44,6 +44,8 @@ namespace PointCloudDiffusion
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The Size of two vector list is not identical");
             }
 
+            
+
             VectorAdd(Point1, Point2, Result);
 
             DA.SetDataList(0, Result);
@@ -61,5 +63,32 @@ namespace PointCloudDiffusion
         {
             get { return new Guid("064C1005-19F5-4C5C-A8F3-B74E37D7D5B4"); }
         }
+
+        double[][] Point2Array(Point3d pt)
+        {
+            double[pt.Count][3] arrpt;
+
+            for (int i; i<pt.Count; i++)
+            {
+                pt[i][0] = pt[i].X;
+                pt[i][1] = pt[i].Y;
+                pt[i][2] = pt[i].Z;
+            }
+            return arrpt;
+        }
+
+        List<Point3d> Array2Point(double[][] arrpt)
+        {
+            List<Point3d> lspt = new List<Point3d>();
+
+            for (int i; i<arrpt.Length; i++)
+            {
+                pt[i][0] = pt[i].X;
+                pt[i][1] = pt[i].Y;
+                pt[i][2] = pt[i].Z;
+            }
+            return arrpt;
+        }
+
     }
 }
