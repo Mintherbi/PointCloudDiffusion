@@ -26,15 +26,13 @@ namespace PointCloudDiffusion
             pManager.AddPointParameter("Result", "R", "Result", GH_ParamAccess.list);
         }
 
-        [DllImport("ParallelVectorCalculation.dll")]
-        public static extern void VectorAdd(double[] point1, double[] point2, double[] result);
+        [DllImport("C:\\Users\\jord9\\source\\repos\\Mintherbi\\PointCloudDiffusion\\PointCloudDiffusion\\ParallelVectorCalculation.dll")]
+        public static extern void VectorAdd(double[,] point1, double[,] point2, int len, double[,] result);
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             List<Point3d> Point1 = new List<Point3d>();
             List<Point3d> Point2 = new List<Point3d>();
-
-            List<Point3d> Result = new List<Point3d>();
 
             if (!DA.GetDataList(0, Point1)) { return; }
             if (!DA.GetDataList(1, Point2)) { return; }
@@ -43,12 +41,13 @@ namespace PointCloudDiffusion
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The Size of two vector list is not identical");
             }
-
+            int len = Point1.Count;
+            double[,] result = new double[len,3];
             
 
-            VectorAdd(Point1, Point2, Result);
+            VectorAdd(Point2Array(Point1), Point2Array(Point2), len, result);
 
-            DA.SetDataList(0, Result);
+            DA.SetDataList(0, Array2Point(result, len));
         }
         protected override System.Drawing.Bitmap Icon
         {
@@ -64,30 +63,30 @@ namespace PointCloudDiffusion
             get { return new Guid("064C1005-19F5-4C5C-A8F3-B74E37D7D5B4"); }
         }
 
-        double[][] Point2Array(Point3d pt)
+        double[,] Point2Array(List<Point3d> lspt)
         {
-            double[pt.Count][3] arrpt;
+            int len = lspt.Count;
+            double[,] arrpt = new double[len, 3];
 
-            for (int i; i<pt.Count; i++)
+            for (int i = 0; i < len; i++)
             {
-                pt[i][0] = pt[i].X;
-                pt[i][1] = pt[i].Y;
-                pt[i][2] = pt[i].Z;
+                arrpt[i, 0] = lspt[i].X;
+                arrpt[i, 1] = lspt[i].Y;
+                arrpt[i, 2] = lspt[i].Z;
             }
+
             return arrpt;
         }
 
-        List<Point3d> Array2Point(double[][] arrpt)
+        List<Point3d> Array2Point(double[,] arrpt, int len)
         {
             List<Point3d> lspt = new List<Point3d>();
 
-            for (int i; i<arrpt.Length; i++)
+            for (int i=0; i<len; i++)
             {
-                pt[i][0] = pt[i].X;
-                pt[i][1] = pt[i].Y;
-                pt[i][2] = pt[i].Z;
+                lspt.Add(new Point3d(arrpt[i,0], arrpt[i,1], arrpt[i,2]));
             }
-            return arrpt;
+            return lspt;
         }
 
     }
