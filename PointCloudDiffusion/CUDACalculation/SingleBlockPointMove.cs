@@ -41,7 +41,9 @@ namespace Diffusion3DPrinting.CUDACalculation
 
             if (!DA.GetDataList(0, Point1)) { return; }
             if (!DA.GetDataList(1, Point2)) { return; }
-
+            
+            ///Exception Alert for size of List
+            ///
             if (Point1.Count != Point2.Count)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The Size of two vector list is not identical");
@@ -56,12 +58,10 @@ namespace Diffusion3DPrinting.CUDACalculation
             Task.Run(() =>
             {
                 VectorAdd(Point2Array(Point1), Point2Array(Point2), len, result);
-
                 Rhino.RhinoApp.InvokeOnUiThread(() =>
                 {
                     DA.SetDataList(0, Array2Point(result, len));
-
-                    ExpireSolution(true);
+                    this.ExpireSolution(true);s
                 });
             });
         }
