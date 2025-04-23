@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace PointCloudDiffusion
+namespace Diffusion3DPrinting.Diffusion
 {
     public class ReverseDiffusion : GH_Component
     {
@@ -21,7 +21,7 @@ namespace PointCloudDiffusion
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddPointParameter("OriginalModel", "OM", "Original Model", GH_ParamAccess.list);
             pManager.AddPointParameter("NoiseCloud", "NC", "Noised Point Cloud", GH_ParamAccess.list);
@@ -32,7 +32,7 @@ namespace PointCloudDiffusion
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddPointParameter("ReverseDiffusion", "RD", "ReverseDiffusion", GH_ParamAccess.list);
         }

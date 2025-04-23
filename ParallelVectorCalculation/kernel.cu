@@ -38,3 +38,9 @@ void VectorAdd(double* point1, double* point2, int len, double* result)
     cudaFree(dresult);    
 }
 
+EXPORTED_METHOD
+void BlockVectorAdd(double* point1, double* point2, int len, double* result)
+{
+
+}
+

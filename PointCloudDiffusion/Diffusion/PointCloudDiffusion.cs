@@ -5,7 +5,7 @@ using Grasshopper;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace PointCloudDiffusion
+namespace Diffusion3DPrinting.Diffusion
 {
     public class PointCloudDiffusion : GH_Component
     {
@@ -26,7 +26,7 @@ namespace PointCloudDiffusion
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddPointParameter("PointCloud", "PC", "Model Parameter", GH_ParamAccess.list);
             pManager.AddNumberParameter("NoiseStrength", "NS", "NoiseStrength, Insert double 0 to 1", GH_ParamAccess.item);
@@ -37,7 +37,7 @@ namespace PointCloudDiffusion
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddPointParameter("NoisedPointCloud", "NP", "PointCloud with noise", GH_ParamAccess.list);
         }
