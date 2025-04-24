@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diffusion3DPrinting", "Poin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParallelVectorCalculation", "ParallelVectorCalculation\ParallelVectorCalculation.vcxproj", "{0E133EA5-8553-73C6-AF19-F159442418C3}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "DPM3D", "DPM3D\DPM3D.pyproj", "{3F72DD75-8A8A-4320-89B9-C4C730746F3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,10 @@ Global
 		{0E133EA5-8553-73C6-AF19-F159442418C3}.Release|Any CPU.Build.0 = Release|x64
 		{0E133EA5-8553-73C6-AF19-F159442418C3}.Release|x64.ActiveCfg = Release|x64
 		{0E133EA5-8553-73C6-AF19-F159442418C3}.Release|x64.Build.0 = Release|x64
+		{3F72DD75-8A8A-4320-89B9-C4C730746F3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F72DD75-8A8A-4320-89B9-C4C730746F3A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3F72DD75-8A8A-4320-89B9-C4C730746F3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F72DD75-8A8A-4320-89B9-C4C730746F3A}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
