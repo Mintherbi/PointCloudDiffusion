@@ -72,8 +72,10 @@ namespace Diffusion3DPrinting.CUDACalculation
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                var stream = assembly.GetManifestResourceStream("C:\\Users\\jord9\\source\\repos\\Mintherbi\\PointCloudDiffusion\\PointCloudDiffusion\\src\\ReverseDiffusion.png");
+                if (stream != null)
+                    return new System.Drawing.Bitmap(stream);
                 return null;
             }
         }

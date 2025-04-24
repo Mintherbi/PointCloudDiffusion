@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Net.Http;
 
 using Grasshopper.Kernel;
 using Rhino.Geometry;
@@ -50,5 +51,10 @@ namespace Diffusion3DPrinting.Utils
 
 
 
+    }
+
+    public class AIClient
+    {
+        private static readonly HttpClient client = new HttpClient();
     }
 }
