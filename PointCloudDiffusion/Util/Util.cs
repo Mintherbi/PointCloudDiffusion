@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using System.IO;
+using System.Text.Json;
 
 using Grasshopper.Kernel;
 using Rhino.Geometry;
@@ -36,5 +40,15 @@ namespace Diffusion3DPrinting.Utils
             }
             return lspt;
         }
+
+        ///CUDA Functions
+        [DllImport(@"C:\Users\jord9\source\repos\Mintherbi\PointCloudDiffusion\x64\Debug\ParallelVectorCalculation.dll")]
+        public static extern void VectorAdd(double[,] point1, double[,] point2, int len, double[,] result);
+
+        [DllImport(@"C:\Users\jord9\source\repos\Mintherbi\PointCloudDiffusion\x64\Debug\ParallelVectorCalculation.dll")]
+        public static extern void BlockVectorAdd(double[,] point1, double[,] point2, int len, double[,] result);
+
+
+
     }
 }

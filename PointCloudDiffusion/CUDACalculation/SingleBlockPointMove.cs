@@ -28,12 +28,6 @@ namespace Diffusion3DPrinting.CUDACalculation
         {
             pManager.AddPointParameter("Result", "R", "Result", GH_ParamAccess.list);
         }
-
-        [DllImport(@"C:\Users\jord9\source\repos\Mintherbi\PointCloudDiffusion\x64\Debug\ParallelVectorCalculation.dll")]
-        public static extern void VectorAdd(double[,] point1, double[,] point2, int len, double[,] result);
-        [DllImport(@"C:\Users\jord9\source\repos\Mintherbi\PointCloudDiffusion\x64\Debug\ParallelVectorCalculation.dll")]
-        public static extern void BlockVectorAdd(double[,] point1, double[,] point2, int len, double[,] result);
-
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             List<Point3d> Point1 = new List<Point3d>();
@@ -55,15 +49,20 @@ namespace Diffusion3DPrinting.CUDACalculation
             int len = Point1.Count;
             double[,] result = new double[len, 3];
 
+            BlockVectorAdd(Point2Array(Point1), Point2Array(Point2), len, result);
+
+            DA.SetDataList(0, Array2Point(result, len));
+            /*
             Task.Run(() =>
             {
                 VectorAdd(Point2Array(Point1), Point2Array(Point2), len, result);
                 Rhino.RhinoApp.InvokeOnUiThread(() =>
                 {
                     DA.SetDataList(0, Array2Point(result, len));
-                    this.ExpireSolution(true);s
+                    this.ExpireSolution(true);
                 });
             });
+            */
         }
         protected override System.Drawing.Bitmap Icon
         {
