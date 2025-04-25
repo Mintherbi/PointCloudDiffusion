@@ -12,6 +12,9 @@ using System.Net.Http;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
+using NumSharp;
+using Grasshopper.Kernel.Geometry;
+
 namespace Diffusion3DPrinting.Utils
 {
     public static class Utils
@@ -42,6 +45,30 @@ namespace Diffusion3DPrinting.Utils
             return lspt;
         }
 
+        public static void SavePointCloudAsNpy(List<List<Point3d>> pointClouds, string filePath)
+        {
+            if (pointClouds == null || pointClouds.Count == 0)
+                throw new ArgumentException("Point cloud list is empty.");
+
+            int batchSize = pointClouds.Count;
+            int numPoints = pointClouds[0].Count;
+
+            double[,,] data = new double[batchSize, numPoints, 3];
+
+            for (int i = 0; i < batchSize; i++)
+            {
+                for (int j = 0; j < numPoints; j++)
+                {
+                    data[i, j, 0] = pointClouds[i][j].X;
+                    data[i, j, 1] = pointClouds[i][j].Y;
+                    data[i, j, 2] = pointClouds[i][j].Z;
+                }
+            }
+
+            var npArray = np.array(data);
+            np.save(filePath, npArray);
+        }
+
         ///CUDA Functions
         [DllImport(@"C:\Users\jord9\source\repos\Mintherbi\PointCloudDiffusion\x64\Debug\ParallelVectorCalculation.dll")]
         public static extern void VectorAdd(double[,] point1, double[,] point2, int len, double[,] result);
@@ -49,12 +76,72 @@ namespace Diffusion3DPrinting.Utils
         [DllImport(@"C:\Users\jord9\source\repos\Mintherbi\PointCloudDiffusion\x64\Debug\ParallelVectorCalculation.dll")]
         public static extern void BlockVectorAdd(double[,] point1, double[,] point2, int len, double[,] result);
 
-
-
     }
+
 
     public class AIClient
     {
-        private static readonly HttpClient client = new HttpClient();
+        private readonly string _pythonPath;
+        private readonly string _scriptPath;
+
+        private Process process;
+
+        public AIClient(string _pythonPath, string _scriptPath)
+        {
+            this._pythonPath = _pythonPath;
+            this._scriptPath = _scriptPath;
+        }
+
+        public async Task StartTraining(double lr, int epoch, double[,] pointcloud)
+        {
+            var hyperparams = new
+            {
+                learning_rate = lr,
+                epochs = epoch
+            };
+            var data = new
+            {
+                data = pointcloud
+            };
+
+            string hyperparamJson = JsonSerializer.Serialize(hyperparams);
+            string dataJson = JsonSerializer.Serialize(data);
+
+            string arguments = $"\"{this._scriptPath}\" --hyperparams \"{hyperparamJson}\" --data \"{dataJson}\"";
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = this._pythonPath,
+                Arguments = arguments,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            this.process = new Process { StartInfo = psi, EnableRaisingEvents = true };
+
+            process.OutputDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Console.WriteLine("[Python] " + e.Data);
+                }
+            };
+
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Console.WriteLine("[Python ERROR] " + e.Data);
+                }
+            };
+
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+
+            await process.WaitForExitAsync();
+        }
     }
 }
