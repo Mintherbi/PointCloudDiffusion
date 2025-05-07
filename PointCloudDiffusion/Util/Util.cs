@@ -9,7 +9,10 @@ using System.IO;
 using System.Text.Json;
 using System.Net.Http;
 
+using Grasshopper;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Data;
+using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 
 using NumSharp;
@@ -45,28 +48,36 @@ namespace Diffusion3DPrinting.Utils
             return lspt;
         }
 
-        public static void SavePointCloudAsNpy(List<List<Point3d>> pointClouds, string filePath)
+        public static async Task SavePointCloudAsNpy(List<List<Point3d>> pointClouds, string filePath, Action<string> onProgress = null)
         {
-            if (pointClouds == null || pointClouds.Count == 0)
-                throw new ArgumentException("Point cloud list is empty.");
-
-            int batchSize = pointClouds.Count;
-            int numPoints = pointClouds[0].Count;
-
-            double[,,] data = new double[batchSize, numPoints, 3];
-
-            for (int i = 0; i < batchSize; i++)
+            await Task.Run(() =>
             {
-                for (int j = 0; j < numPoints; j++)
-                {
-                    data[i, j, 0] = pointClouds[i][j].X;
-                    data[i, j, 1] = pointClouds[i][j].Y;
-                    data[i, j, 2] = pointClouds[i][j].Z;
-                }
-            }
+                int batchSize = pointClouds.Count;
+                int numPoints = pointClouds[0].Count;
 
-            var npArray = np.array(data);
-            np.save(filePath, npArray);
+                double[,,] data = new double[batchSize, numPoints, 3];
+
+                for (int i = 0; i < batchSize; i++)
+                {
+                    for (int j = 0; j < numPoints; j++)
+                    {
+                        data[i, j, 0] = pointClouds[i][j].X;
+                        data[i, j, 1] = pointClouds[i][j].Y;
+                        data[i, j, 2] = pointClouds[i][j].Z;
+                    }
+
+                    if ((i + 1) % 10 == 0)
+                    {
+                        onProgress?.Invoke($"{i + 1} pointclouds processed");
+                    }
+                }
+
+                var npArray = np.array(data);
+                np.save(filePath, npArray);
+
+                onProgress?.Invoke("Process Completed");
+            });
+
         }
 
         ///CUDA Functions
@@ -86,28 +97,27 @@ namespace Diffusion3DPrinting.Utils
 
         private Process process;
 
-        public AIClient(string _pythonPath, string _scriptPath)
+        //Constructor
+        public AIClient(
+            string _pythonPath = @"C:\Users\jord9\anaconda3\python.exe",
+            string _scriptPath = @"C:\Users\jord9\source\repos\Mintherbi\PointCloudDiffusion\DPM3D\DPM3D.py")
         {
             this._pythonPath = _pythonPath;
             this._scriptPath = _scriptPath;
         }
 
-        public async Task StartTraining(double lr, int epoch, double[,] pointcloud)
+
+        public async Task StartTraining(double learning_rate, int epoch, string dataPath)
         {
             var hyperparams = new
             {
-                learning_rate = lr,
+                learning_rate = learning_rate,
                 epochs = epoch
-            };
-            var data = new
-            {
-                data = pointcloud
             };
 
             string hyperparamJson = JsonSerializer.Serialize(hyperparams);
-            string dataJson = JsonSerializer.Serialize(data);
 
-            string arguments = $"\"{this._scriptPath}\" --hyperparams \"{hyperparamJson}\" --data \"{dataJson}\"";
+            string arguments = $"\"{this._scriptPath}\" --hyperparams \"{hyperparamJson}\" --data_path \"{dataPath}\"";
 
             var psi = new ProcessStartInfo
             {

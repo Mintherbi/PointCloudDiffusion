@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace Diffusion3DPrinting.Diffusion
+namespace Diffusion3DPrinting.Util
 {
-    public class MyComponent1 : GH_Component
+    public class PythonInLocal : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public MyComponent1()
-          : base("MyComponent1", "Nickname",
-              "Description",
-              "Category", "Subcategory")
+        public PythonInLocal()
+          : base("PythonInLocal", "PyLo",
+              "Python in Local Environment",
+              "BinaryNature", "ARTs Lab")
         {
         }
 
@@ -23,6 +23,8 @@ namespace Diffusion3DPrinting.Diffusion
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+            pManager.AddPathParameter("PythonPath", "PP", "Path of Python", GH_ParamAccess.item);
+            pManager.AddPathParameter("ArgumentPath", "AP", "Path of Argument", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -30,6 +32,7 @@ namespace Diffusion3DPrinting.Diffusion
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddTextParameter("Process", "P", "Process of Program", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -38,6 +41,8 @@ namespace Diffusion3DPrinting.Diffusion
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            string Path;
+
         }
 
         /// <summary>
@@ -58,7 +63,7 @@ namespace Diffusion3DPrinting.Diffusion
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("B4BC5CD3-231D-4803-8468-BB883C60FA93"); }
+            get { return new Guid("E3F1392F-34AF-4514-9ECE-14601DC9DABC"); }
         }
     }
 }
