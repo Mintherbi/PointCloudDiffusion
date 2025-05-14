@@ -46,5 +46,8 @@
   <ItemGroup>
     <ProjectReference Include="..\HelloWorld\HelloWorld.pyproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
 
 </Project>

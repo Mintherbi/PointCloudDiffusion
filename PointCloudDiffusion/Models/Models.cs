@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace PointCloudDiffusion.Models
 {
-    public interface IModel
+    public class DPM3D : IModel 
     {
-        string _Name { get; set; }
+        public string _Name { get; set; }
     }
 }

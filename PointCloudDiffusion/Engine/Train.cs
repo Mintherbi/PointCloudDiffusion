@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
+using PointCloudDiffusion.Models;
+
 namespace PointCloudDiffusion.Engine
 {
     public class Train : GH_Component
@@ -12,9 +14,9 @@ namespace PointCloudDiffusion.Engine
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
         public Train()
-          : base("MyComponent1", "Nickname",
-              "Description",
-              "Category", "Subcategory")
+          : base("Train", "T",
+              "Input the Model you want to train and datasets",
+              "BinaryNature", "ARTs Lab")
         {
         }
 
@@ -25,10 +27,10 @@ namespace PointCloudDiffusion.Engine
         //This region overrides the typical component layout
         public override void CreateAttributes()
         {
-            m_attributes = new CustomUI.ButtonUIAttributes(this, "ButTxt", FunctionToRunOnClick, "Opt description");
+            m_attributes = new CustomUI.ButtonUIAttributes(this, "TRAIN!", TrainStart, "Start Training");
         }
 
-        public void FunctionToRunOnClick()
+        public void TrainStart()
         {
             System.Windows.Forms.MessageBox.Show("Button was clicked");
         }
@@ -36,6 +38,9 @@ namespace PointCloudDiffusion.Engine
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+            pManager.AddGenericParameter("ModelOption", "MO", "Choose Model to Run and its Option", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Environment", "E", "Where do you want to run this model? Local or External Server", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Dataset", "D", "Dataset for Training", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -43,7 +48,9 @@ namespace PointCloudDiffusion.Engine
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddTextParameter("Process", "P", "Shows the Progress of Training", GH_ParamAccess.list);
         }
+
 
         /// <summary>
         /// This is the method that actually does the work.
@@ -51,6 +58,9 @@ namespace PointCloudDiffusion.Engine
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            IModel Model;
+
+
         }
 
         /// <summary>
