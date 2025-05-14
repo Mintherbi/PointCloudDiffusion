@@ -4,27 +4,38 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace Diffusion3DPrinting.Util
+namespace PointCloudDiffusion.Engine
 {
-    public class PythonInServer : GH_Component
+    public class Train : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public PythonInServer()
-          : base("PythonInServer", "PIS",
-              "Python Script run in server",
-              "BinaryNature", "ARTs Lab")
+        public Train()
+          : base("MyComponent1", "Nickname",
+              "Description",
+              "Category", "Subcategory")
         {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
+
+        //This region overrides the typical component layout
+        public override void CreateAttributes()
+        {
+            m_attributes = new CustomUI.ButtonUIAttributes(this, "ButTxt", FunctionToRunOnClick, "Opt description");
+        }
+
+        public void FunctionToRunOnClick()
+        {
+            System.Windows.Forms.MessageBox.Show("Button was clicked");
+        }
+
+
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("ipAddress", "IP", "IP Address of Server", GH_ParamAccess.item);
-            pManager.AddTextParameter("SSH", "SSH", "SSH key for connection", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -60,7 +71,7 @@ namespace Diffusion3DPrinting.Util
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("568F1800-4EE9-4015-9DA6-15B1E9FA8C3F"); }
+            get { return new Guid("D2F38E95-55BD-4B38-81AF-B782F693D0DA"); }
         }
     }
 }

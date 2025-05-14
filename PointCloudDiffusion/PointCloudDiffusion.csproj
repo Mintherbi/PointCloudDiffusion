@@ -43,5 +43,8 @@
     <Reference Include="$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net48)\build\.NETFramework\v4.8\System.Windows.Forms.dll" Private="False" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.4" ExcludeAssets="runtime" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HelloWorld\HelloWorld.pyproj" />
+  </ItemGroup>
 
 </Project>
