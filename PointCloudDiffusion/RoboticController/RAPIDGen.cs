@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace PointCloudDiffusion
+namespace Diffusion3DPrinting.RoboticController
 {
     public class RAPIDGen : GH_Component
     {
@@ -21,7 +20,7 @@ namespace PointCloudDiffusion
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddPlaneParameter("ToolPath", "TP", "Path of Tool", GH_ParamAccess.list);
         }
@@ -29,7 +28,7 @@ namespace PointCloudDiffusion
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("RAPIDcode", "RP", "Rapid Code Generated", GH_ParamAccess.list);
         }
@@ -41,7 +40,7 @@ namespace PointCloudDiffusion
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             List<Plane> ToolPath = new List<Plane>();
-            List<String> RAPID = new List<String>();
+            List<string> RAPID = new List<string>();
 
             if(!DA.GetData(0, ref ToolPath)){ return; }
 
