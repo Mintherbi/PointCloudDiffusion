@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PointCloudDiffusion.Models
+namespace PointCloudDiffusion.Client
 {
-    public class DPM3D : IModel 
+    internal class PyServer
     {
-        public string _Name { get; set; }
     }
 }

@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace Diffusion3DPrinting.Util
+namespace PointCloudDiffusion.Component.ExternalProcess
 {
-    public class PythonInLocal : GH_Component
+    public class PyLocalComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public PythonInLocal()
+        public PyLocalComponent()
           : base("PythonInLocal", "PyLo",
               "Python in Local Environment",
               "BinaryNature", "ARTs Lab")
@@ -21,7 +20,7 @@ namespace Diffusion3DPrinting.Util
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddPathParameter("PythonPath", "PP", "Path of Python", GH_ParamAccess.item);
             pManager.AddPathParameter("ArgumentPath", "AP", "Path of Argument", GH_ParamAccess.item);
@@ -30,7 +29,7 @@ namespace Diffusion3DPrinting.Util
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("Process", "P", "Process of Program", GH_ParamAccess.item);
         }

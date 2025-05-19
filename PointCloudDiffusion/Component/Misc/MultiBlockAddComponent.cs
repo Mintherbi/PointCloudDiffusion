@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 using static Diffusion3DPrinting.Utils.Utils;
 
-namespace Diffusion3DPrinting.CUDACalculation
+namespace PointCloudDiffusion.Component.Misc
 {
-    public class MultipleBlockPointMove : GH_Component
+    public class MultiBlockAddComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public MultipleBlockPointMove()
+        public MultiBlockAddComponent()
           : base("MultiBlockParalellMove", "MBPM",
               "Utilizing Multiple Block for Point Movement Employing CUDA",
-              "BinaryNature", "ARTs Lab")
+              "ARTs Lab", "Misc.")
         {
         }
 

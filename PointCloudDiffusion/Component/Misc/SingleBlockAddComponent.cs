@@ -2,20 +2,19 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 using static Diffusion3DPrinting.Utils.Utils;
 
-namespace Diffusion3DPrinting.CUDACalculation
+namespace PointCloudDiffusion.Component.Misc
 {
-    public class SingleBlockPointMove : GH_Component
+    public class SingleBlockAddComponent : GH_Component
     {
-        public SingleBlockPointMove()
+        public SingleBlockAddComponent()
           : base("SingleBlockPointMove", "SBPM",
               "Untilizing Single Block for Point Movement Employing CUDA",
-              "BinaryNature", "ARTs Lab")
+              "ARTs Lab", "Misc.")
         {
         }
         protected override void RegisterInputParams(GH_InputParamManager pManager)

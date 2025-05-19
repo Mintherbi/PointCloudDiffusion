@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace Diffusion3DPrinting.Diffusion
+namespace PointCloudDiffusion.Component.Visualization
 {
     public class DiffusionProbabilisticModel : GH_Component
     {
@@ -21,7 +20,7 @@ namespace Diffusion3DPrinting.Diffusion
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("DataPath", "DP", ".npy Data Path", GH_ParamAccess.item);
         }
@@ -29,7 +28,7 @@ namespace Diffusion3DPrinting.Diffusion
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("Progress", "P", "Progress Update", GH_ParamAccess.list);
             pManager.AddTextParameter("LearningWeight", "LW", "Learning Weight Data", GH_ParamAccess.item);

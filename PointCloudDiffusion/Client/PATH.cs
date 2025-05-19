@@ -18,7 +18,7 @@ using Rhino.Geometry;
 using NumSharp;
 using Grasshopper.Kernel.Geometry;
 
-namespace PointCloudDiffusion
+namespace PointCloudDiffusion.Client
 {
     public class PATH
     {

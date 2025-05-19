@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace Diffusion3DPrinting.Util
+namespace PointCloudDiffusion.Component.ExternalProcess
 {
-    public class PythonInServer : GH_Component
+    public class PyServerComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public PythonInServer()
+        public PyServerComponent()
           : base("PythonInServer", "PIS",
               "Python Script run in server",
               "BinaryNature", "ARTs Lab")
@@ -21,7 +20,7 @@ namespace Diffusion3DPrinting.Util
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("ipAddress", "IP", "IP Address of Server", GH_ParamAccess.item);
             pManager.AddTextParameter("SSH", "SSH", "SSH key for connection", GH_ParamAccess.item);
@@ -30,7 +29,7 @@ namespace Diffusion3DPrinting.Util
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
         }
 

@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PointCloudDiffusion.Models
+namespace PointCloudDiffusion.Client
 {
-    public interface IModel
+    internal class PyLocal
     {
-        string _Name { get; set; }
     }
 }

@@ -47,7 +47,7 @@
     <ProjectReference Include="..\HelloWorld\HelloWorld.pyproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Data\" />
+    <Folder Include="Component\ModelOptions\" />
   </ItemGroup>
 
 </Project>

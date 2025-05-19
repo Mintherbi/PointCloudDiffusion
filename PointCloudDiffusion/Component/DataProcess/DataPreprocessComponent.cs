@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
 using Grasshopper;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
@@ -10,14 +9,14 @@ using Rhino.Geometry;
 
 using static Diffusion3DPrinting.Utils.Utils;
 
-namespace Diffusion3DPrinting.Diffusion
+namespace PointCloudDiffusion.Component.DataProcess
 {
-    public class DataInput : GH_Component
+    public class DataPreprocessComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public DataInput()
+        public DataPreprocessComponent()
           : base("DataInput", "DI",
               "Input Data for Learning",
               "BinaryNature", "ARTs Lab")
@@ -27,7 +26,7 @@ namespace Diffusion3DPrinting.Diffusion
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddPointParameter("DataInput", "DI", "Data Input", GH_ParamAccess.list);
             pManager.AddTextParameter("SavePath", "SP", "Input path for .npy file to be saved", GH_ParamAccess.item);
@@ -36,7 +35,7 @@ namespace Diffusion3DPrinting.Diffusion
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddPathParameter("PathSaved", "PS", "Location of .npy file", GH_ParamAccess.item);
             pManager.AddTextParameter("Progress", "P", "What is he doing now?", GH_ParamAccess.list);
