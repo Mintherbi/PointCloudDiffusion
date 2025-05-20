@@ -20,13 +20,15 @@ using Grasshopper.Kernel.Geometry;
 
 namespace PointCloudDiffusion.Client
 {
-    public class PATH
+    public static class PATH
     {
-        public static string PythonPath;
-        public static string projectRoot = @"..";
+        public static string pythonPath => @"C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\python3.11.exe";
+        public static string projectRoot => @"..\..\";
+        public static string modelPath => Path.Combine(projectRoot,"Models");
 
-        public static string DPM3D => Path.Combine(projectRoot, DPM3D);
-        public static string HelloWorld => Path.Combine(projectRoot, HelloWorld);
+        public static string DPM3D_Train_AE => Path.Combine(modelPath, "DPM3D", "train_ae.py");
+        public static string DPM3D_Train_Gen => Path.Combine(modelPath, "DPM3D", "train_gen.py");
+        public static string HelloWorld => Path.Combine(modelPath,"HelloWorld", "HelloWorld.py");
 
     }
 }

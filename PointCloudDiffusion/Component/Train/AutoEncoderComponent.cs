@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-using PointCloudDiffusion.Models;
-
 namespace PointCloudDiffusion.Component.Train
 {
     public class AutoEncoderComponent : GH_Component
@@ -58,8 +56,6 @@ namespace PointCloudDiffusion.Component.Train
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            IModel Model;
-
 
         }
 

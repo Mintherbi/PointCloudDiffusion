@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
+using System.IO;
+
+using PointCloudDiffusion.Client;
+
 namespace PointCloudDiffusion.Component.ExternalProcess
 {
     public class PyLocalComponent : GH_Component
@@ -17,13 +21,29 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         {
         }
 
+        string PythonPath;
+        string ScriptPath;
+        string args;
+
+        public override void CreateAttributes()
+        {
+            m_attributes = new CustomUI.ButtonUIAttributes(this, "RUN!", RunPython, "RunPythonScript");
+        }
+
+        public void RunPython()
+        {
+            PyLocal pylocal = new PyLocal(ScriptPath, args);
+            pylocal.Run();
+        }
+
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddPathParameter("PythonPath", "PP", "Path of Python", GH_ParamAccess.item);
-            pManager.AddPathParameter("ArgumentPath", "AP", "Path of Argument", GH_ParamAccess.item);
+            pManager.AddTextParameter("PythonPath", "PP", "Path of Python", GH_ParamAccess.item, PATH.pythonPath);
+            pManager.AddTextParameter("ScriptPath", "SP", "Path of Script", GH_ParamAccess.item, PATH.HelloWorld);
+            pManager.AddTextParameter("ArgumentPath", "AP", "Path of Argument", GH_ParamAccess.item, "");
         }
 
         /// <summary>
@@ -40,8 +60,11 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string Path;
+            if(!DA.GetData(0, ref PythonPath)) { return; }
+            if(!DA.GetData(1, ref ScriptPath)) { return; }
+            if(!DA.GetData(2, ref args)) { return; }
 
+            DA.SetData(0, null);
         }
 
         /// <summary>
