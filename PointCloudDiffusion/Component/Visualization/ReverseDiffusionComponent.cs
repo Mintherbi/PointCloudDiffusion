@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace Diffusion3DPrinting.Diffusion
+namespace PointCloudDiffusion.Component.Visualization
 {
-    public class ReverseDiffusion : GH_Component
+    public class ReverseDiffusionComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public ReverseDiffusion()
+        public ReverseDiffusionComponent()
           : base("ReverseDiffusion", "RD",
             "Description",
             "BinaryNature", "ARTs Lab")
@@ -79,8 +78,10 @@ namespace Diffusion3DPrinting.Diffusion
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                var stream = assembly.GetManifestResourceStream("C:\\Users\\jord9\\source\\repos\\Mintherbi\\PointCloudDiffusion\\PointCloudDiffusion\\src\\ReverseDiffusion.png");
+                if (stream != null)
+                    return new System.Drawing.Bitmap(stream);
                 return null;
             }
         }

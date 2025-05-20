@@ -3,14 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diffusion3DPrinting", "PointCloudDiffusion\Diffusion3DPrinting.csproj", "{AE5E34FF-174C-41AC-BEE4-A26FDDEF849F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointCloudDiffusion", "PointCloudDiffusion\PointCloudDiffusion.csproj", "{AE5E34FF-174C-41AC-BEE4-A26FDDEF849F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0E133EA5-8553-73C6-AF19-F159442418C3} = {0E133EA5-8553-73C6-AF19-F159442418C3}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParallelVectorCalculation", "ParallelVectorCalculation\ParallelVectorCalculation.vcxproj", "{0E133EA5-8553-73C6-AF19-F159442418C3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VectorCalculation", "ParallelVectorCalculation\ParallelVectorCalculation.vcxproj", "{0E133EA5-8553-73C6-AF19-F159442418C3}"
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "DPM3D", "DPM3D\DPM3D.pyproj", "{3F72DD75-8A8A-4320-89B9-C4C730746F3A}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "HelloWorld", "HelloWorld\HelloWorld.pyproj", "{BDC82C15-2EB3-462B-B5F3-B77A7F04EB99}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,9 +44,17 @@ Global
 		{3F72DD75-8A8A-4320-89B9-C4C730746F3A}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{3F72DD75-8A8A-4320-89B9-C4C730746F3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F72DD75-8A8A-4320-89B9-C4C730746F3A}.Release|x64.ActiveCfg = Release|Any CPU
+		{BDC82C15-2EB3-462B-B5F3-B77A7F04EB99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDC82C15-2EB3-462B-B5F3-B77A7F04EB99}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BDC82C15-2EB3-462B-B5F3-B77A7F04EB99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDC82C15-2EB3-462B-B5F3-B77A7F04EB99}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3F72DD75-8A8A-4320-89B9-C4C730746F3A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{BDC82C15-2EB3-462B-B5F3-B77A7F04EB99} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {60BC55B8-7869-4890-B0F0-FDA24E43F5A8}

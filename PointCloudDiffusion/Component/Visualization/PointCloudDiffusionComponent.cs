@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-
 using Grasshopper;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace Diffusion3DPrinting.Diffusion
+namespace PointCloudDiffusion.Component.Visualization
 {
-    public class PointCloudDiffusion : GH_Component
+    public class PointCloudDiffusionComponent : GH_Component
     {
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -16,7 +15,7 @@ namespace Diffusion3DPrinting.Diffusion
         /// Subcategory the panel. If you use non-existing tab or panel names, 
         /// new tabs/panels will automatically be created.
         /// </summary>
-        public PointCloudDiffusion()
+        public PointCloudDiffusionComponent()
           : base("PointCloudDiffusion", "PD",
             "Description",
             "BinaryNature", "ARTs Lab")

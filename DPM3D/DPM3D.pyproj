@@ -4,7 +4,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3f72dd75-8a8a-4320-89b9-c4c730746f3a</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>DPM3D.py</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +22,47 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DPM3D.py" />
+    <Compile Include="evaluation\evaluation_metrics.py" />
+    <Compile Include="evaluation\__init__.py" />
+    <Compile Include="models\autoencoder.py" />
+    <Compile Include="models\common.py" />
+    <Compile Include="models\diffusion.py" />
+    <Compile Include="models\encoders\pointcnn.py" />
+    <Compile Include="models\encoders\pointnet.py" />
+    <Compile Include="models\encoders\__init__.py" />
+    <Compile Include="models\flow.py" />
+    <Compile Include="models\vae_flow.py" />
+    <Compile Include="models\vae_gaussian.py" />
+    <Compile Include="test_ae.py" />
+    <Compile Include="test_gen.py" />
+    <Compile Include="train_ae.py" />
+    <Compile Include="train_gen.py" />
+    <Compile Include="utils\data.py" />
+    <Compile Include="utils\dataset.py" />
+    <Compile Include="utils\misc.py" />
+    <Compile Include="utils\transform.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="diffusion-point-cloud-main\" />
+    <Folder Include="data\" />
+    <Folder Include="evaluation\" />
+    <Folder Include="models\" />
+    <Folder Include="models\encoders\" />
+    <Folder Include="pretrained\" />
+    <Folder Include="results\" />
+    <Folder Include="utils\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include="data\.gitignore" />
+    <Content Include="env.yml" />
+    <Content Include="evaluation\.gitignore" />
+    <Content Include="LICENSE" />
+    <Content Include="pretrained\.gitignore" />
+    <Content Include="README.md" />
+    <Content Include="results\.gitignore" />
+    <Content Include="results\README.md" />
+    <Content Include="teaser.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

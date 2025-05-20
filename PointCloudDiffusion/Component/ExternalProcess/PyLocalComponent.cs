@@ -1,23 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-using static Diffusion3DPrinting.Utils.Utils;
+using System.IO;
 
-namespace Diffusion3DPrinting.CUDACalculation
+using PointCloudDiffusion.Client;
+
+namespace PointCloudDiffusion.Component.ExternalProcess
 {
-    public class MultipleBlockPointMove : GH_Component
+    public class PyLocalComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public MultipleBlockPointMove()
-          : base("MultiBlockParalellMove", "MBPM",
-              "Utilizing Multiple Block for Point Movement Employing CUDA",
+        public PyLocalComponent()
+          : base("PythonInLocal", "PyLo",
+              "Python in Local Environment",
               "BinaryNature", "ARTs Lab")
         {
+        }
+
+        string PythonPath;
+        string ScriptPath;
+        string args;
+
+        public override void CreateAttributes()
+        {
+            m_attributes = new CustomUI.ButtonUIAttributes(this, "RUN!", RunPython, "RunPythonScript");
+        }
+
+        public void RunPython()
+        {
+            PyLocal pylocal = new PyLocal(ScriptPath, args);
+            pylocal.Run();
         }
 
         /// <summary>
@@ -25,8 +41,9 @@ namespace Diffusion3DPrinting.CUDACalculation
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddPointParameter("PointList", "PL", "Point to Move", GH_ParamAccess.list);
-            pManager.AddPointParameter("Point2Add", "PA", "Point to Move", GH_ParamAccess.list);
+            pManager.AddTextParameter("PythonPath", "PP", "Path of Python", GH_ParamAccess.item, PATH.pythonPath);
+            pManager.AddTextParameter("ScriptPath", "SP", "Path of Script", GH_ParamAccess.item, PATH.HelloWorld);
+            pManager.AddTextParameter("ArgumentPath", "AP", "Path of Argument", GH_ParamAccess.item, "");
         }
 
         /// <summary>
@@ -34,7 +51,7 @@ namespace Diffusion3DPrinting.CUDACalculation
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddPointParameter("Result", "R", "Result", GH_ParamAccess.list);
+            pManager.AddTextParameter("Process", "P", "Process of Program", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -43,26 +60,11 @@ namespace Diffusion3DPrinting.CUDACalculation
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            List<Point3d> Point1 = new List<Point3d>();
-            List<Point3d> Point2 = new List<Point3d>();
+            if(!DA.GetData(0, ref PythonPath)) { return; }
+            if(!DA.GetData(1, ref ScriptPath)) { return; }
+            if(!DA.GetData(2, ref args)) { return; }
 
-            if (!DA.GetDataList(0, Point1)) { return; }
-            if (!DA.GetDataList(1, Point2)) { return; }
-            
-            ///Exception Alert for size of List
-            ///
-            if (Point1.Count != Point2.Count)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The Size of two vector list is not identical");
-            }
-
-            int len = Point1.Count;
-            double[,] result = new double[len, 3];
-
-            BlockVectorAdd(Point2Array(Point1), Point2Array(Point2), len, result);
-
-            DA.SetDataList(0, Array2Point(result, len));
-
+            DA.SetData(0, null);
         }
 
         /// <summary>
@@ -83,7 +85,7 @@ namespace Diffusion3DPrinting.CUDACalculation
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("C03249DD-D6E7-46B3-B281-6F110F6FA841"); }
+            get { return new Guid("E3F1392F-34AF-4514-9ECE-14601DC9DABC"); }
         }
     }
 }

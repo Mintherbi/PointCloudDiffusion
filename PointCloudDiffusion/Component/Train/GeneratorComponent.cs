@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace PointCloudDiffusion
+namespace PointCloudDiffusion.Component.Train
 {
-    public class RAPIDGen : GH_Component
+    public class GeneratorComponent : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public RAPIDGen()
-          : base("RAPIDGen", "RG",
-              "RAPID Code Generator",
-              "BinaryNature", "ARTs Lab")
+        public GeneratorComponent()
+          : base("MyComponent1", "Nickname",
+              "Description",
+              "Category", "Subcategory")
         {
         }
 
@@ -23,7 +23,6 @@ namespace PointCloudDiffusion
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddPlaneParameter("ToolPath", "TP", "Path of Tool", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -31,7 +30,6 @@ namespace PointCloudDiffusion
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("RAPIDcode", "RP", "Rapid Code Generated", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -40,13 +38,6 @@ namespace PointCloudDiffusion
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            List<Plane> ToolPath = new List<Plane>();
-            List<String> RAPID = new List<String>();
-
-            if(!DA.GetData(0, ref ToolPath)){ return; }
-
-            DA.SetDataList(0, RAPID);
-
         }
 
         /// <summary>
@@ -67,7 +58,7 @@ namespace PointCloudDiffusion
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("B0AF6F0D-AA09-44D8-9057-2B961913392A"); }
+            get { return new Guid("89340CEC-E66C-4C92-9B73-FD468B19A3B8"); }
         }
     }
 }
