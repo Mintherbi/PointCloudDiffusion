@@ -13,7 +13,7 @@ namespace PointCloudDiffusion.Component.Visualization
         public ReverseDiffusionComponent()
           : base("ReverseDiffusion", "RD",
             "Description",
-            "BinaryNature", "ARTs Lab")
+            "ARTs Lab", "Visualization")
         {
         }
 

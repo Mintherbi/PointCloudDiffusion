@@ -44,9 +44,6 @@
     <PackageReference Include="System.Drawing.Common" Version="9.0.4" ExcludeAssets="runtime" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HelloWorld\HelloWorld.pyproj" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Component\ModelOptions\" />
   </ItemGroup>
 

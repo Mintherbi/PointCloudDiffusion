@@ -17,7 +17,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         public PyLocalComponent()
           : base("PythonInLocal", "PyLo",
               "Python in Local Environment",
-              "BinaryNature", "ARTs Lab")
+              "ARTs Lab", "Execution")
         {
         }
 
@@ -32,7 +32,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
 
         public void RunPython()
         {
-            PyLocal pylocal = new PyLocal(ScriptPath, args);
+            PyLocal pylocal = new PyLocal(PATH.HelloWorld);
             pylocal.Run();
         }
 
@@ -41,9 +41,11 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
+            /*
             pManager.AddTextParameter("PythonPath", "PP", "Path of Python", GH_ParamAccess.item, PATH.pythonPath);
             pManager.AddTextParameter("ScriptPath", "SP", "Path of Script", GH_ParamAccess.item, PATH.HelloWorld);
             pManager.AddTextParameter("ArgumentPath", "AP", "Path of Argument", GH_ParamAccess.item, "");
+            */
         }
 
         /// <summary>
@@ -60,9 +62,11 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            /*
             if(!DA.GetData(0, ref PythonPath)) { return; }
             if(!DA.GetData(1, ref ScriptPath)) { return; }
             if(!DA.GetData(2, ref args)) { return; }
+            */
 
             DA.SetData(0, null);
         }

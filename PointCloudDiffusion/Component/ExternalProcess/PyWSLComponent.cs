@@ -12,9 +12,9 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
         public PyWSLComponent()
-          : base("MyComponent1", "Nickname",
-              "Description",
-              "Category", "Subcategory")
+          : base("PythonInWsl", "PyWSL",
+              "Execute Python in WSl Environment",
+              "ARTs Lab", "Execution")
         {
         }
 

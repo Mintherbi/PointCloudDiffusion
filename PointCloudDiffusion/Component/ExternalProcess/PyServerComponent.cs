@@ -13,7 +13,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         public PyServerComponent()
           : base("PythonInServer", "PIS",
               "Python Script run in server",
-              "BinaryNature", "ARTs Lab")
+              "ARTs Lab", "Execution")
         {
         }
 

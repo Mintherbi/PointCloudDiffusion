@@ -19,7 +19,7 @@ namespace PointCloudDiffusion.Component.DataProcess
         public DataPreprocessComponent()
           : base("DataInput", "DI",
               "Input Data for Learning",
-              "BinaryNature", "ARTs Lab")
+              "ARTs Lab", "Preprocess")
         {
         }
 

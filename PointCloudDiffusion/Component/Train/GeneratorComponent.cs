@@ -12,9 +12,9 @@ namespace PointCloudDiffusion.Component.Train
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
         public GeneratorComponent()
-          : base("MyComponent1", "Nickname",
-              "Description",
-              "Category", "Subcategory")
+          : base("Generator Train", "GenTrain",
+              "Train Diffusion Model Generator",
+              "ARTs Lab", "Train")
         {
         }
 
