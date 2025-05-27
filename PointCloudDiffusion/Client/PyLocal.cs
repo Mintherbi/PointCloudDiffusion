@@ -23,17 +23,25 @@ namespace PointCloudDiffusion.Client
             //string inlineCode = $"exec(open(r\"{scriptPath}\").read())";
 
             this.process = new Process();
-            this.process.StartInfo.FileName = PATH.powershellPath;
-            this.process.StartInfo.Arguments = $"-NoExit -Command \"python \\\"{scriptPath}\\\"\"";
-            this.process.StartInfo.UseShellExecute = false;
-            this.process.StartInfo.RedirectStandardOutput = false;
-            this.process.StartInfo.RedirectStandardError = false;
-            this.process.StartInfo.CreateNoWindow = false;
+            
+            var psi = new ProcessStartInfo
+            {
+                FileName = PATH.powershellPath,
+                Arguments = $"-NoExit -Command \"python \\\"{scriptPath}\\\"\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = false
+            };
+
+            this.process.StartInfo = psi;
         }
 
         public void Run()
         {
             this.process.Start();
+
+            string output = 
         }
     }
 }
