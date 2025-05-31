@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Ports;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
+using Grasshopper;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
+
+using PointCloudDiffusion.Client;
 
 namespace PointCloudDiffusion.Component.ExternalProcess
 {
@@ -18,11 +25,76 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         {
         }
 
+        string scriptPath;
+        string scriptArgs;
+
+        List<string> processOutput = new List<string>();
+        List<string> processError = new List<string>();
+
+        public override void CreateAttributes()
+        {
+            m_attributes = new CustomUI.ButtonUIAttributes(this, "RUN!", AsyncRunWSL, "RunPythonScript");
+        }
+        public void AsyncRunWSL()
+        {
+            Task.Run(async () =>
+            {
+                PyWSL pyWSL = new PyWSL(scriptPath, scriptArgs);
+
+                await pyWSL.AsyncRun(
+                    processOutput: line =>
+                    {
+                        processOutput.Add(line);
+                        log.Add(line);
+                        Grasshopper.Instances.DocumentEditor.Invoke(new Action(() =>
+                        {
+                            this.OnPingDocument().ScheduleSolution(1, doc =>
+                            {
+                                this.ExpireSolution(false); // false: 중간 갱신
+                            });
+                        }));
+                    },
+                    processError: line =>
+                    {
+                        processError.Add(line);
+                        Rhino.RhinoApp.WriteLine(line);
+                        Grasshopper.Instances.DocumentEditor.Invoke(new Action(() =>
+                        {
+                            this.OnPingDocument().ScheduleSolution(1, doc =>
+                            {
+                                this.ExpireSolution(false);
+                            });
+                        }));
+                    }
+                );
+
+                Rhino.RhinoApp.InvokeOnUiThread(() =>
+                {
+                    this.ExpireSolution(true); 
+                });
+            });
+        }
+
+        public void RunWSL()
+        {
+            string Output;
+            string Error;
+
+            PyWSL pyWSL = new PyWSL(scriptPath, scriptArgs);
+
+            (Output, Error) = pyWSL.Run();
+
+            processOutput.Add(Output);
+            processError.Add(Error);
+
+        }
+
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+            pManager.AddTextParameter("FilePath", "FP", "", GH_ParamAccess.item, "/mnt/c/Users/jord9/source/repos/Mintherbi/PointCloudDiffusion/Hello/Hello.py");   
         }
 
         /// <summary>
@@ -30,6 +102,9 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddTextParameter("Debug", "D", "Component Output for Debuging", GH_ParamAccess.list);
+            pManager.AddTextParameter("ProcessOutput", "Out", "Process Output", GH_ParamAccess.item);
+            pManager.AddTextParameter("ProcessError", "Err", "Process Error", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -38,6 +113,10 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            if (!DA.GetData(0, ref scriptPath)) { return; }
+
+            DA.SetDataList(1, processOutput);
+            DA.SetDataList(2, processError);
         }
 
         /// <summary>

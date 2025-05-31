@@ -26,11 +26,11 @@ namespace PointCloudDiffusion.Client
             
             var psi = new ProcessStartInfo
             {
-                FileName = PATH.powershellPath,
-                Arguments = $"-NoExit -Command \"python \\\"{scriptPath}\\\"\"",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
+                FileName = "powershell",
+                Arguments = $"-NoExit -Command \"python \\\"{scriptPath}\\\" {args}\"",
+                UseShellExecute = true,
+                //RedirectStandardOutput = true,
+                //RedirectStandardError = true,
                 CreateNoWindow = false
             };
 
@@ -40,8 +40,6 @@ namespace PointCloudDiffusion.Client
         public void Run()
         {
             this.process.Start();
-
-            string output = 
         }
     }
 }

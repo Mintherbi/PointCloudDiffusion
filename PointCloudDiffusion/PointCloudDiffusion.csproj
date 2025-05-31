@@ -23,6 +23,12 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <Compile Remove="Component\ModelOptions\**" />
+    <EmbeddedResource Remove="Component\ModelOptions\**" />
+    <None Remove="Component\ModelOptions\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="Grasshopper" Version="8.18.25100.11001" ExcludeAssets="runtime" />
     <PackageReference Include="NumSharp" Version="0.30.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.4" />
@@ -42,9 +48,6 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" ExcludeAssets="all" GeneratePathProperty="true" />
     <Reference Include="$(PkgMicrosoft_NETFramework_ReferenceAssemblies_net48)\build\.NETFramework\v4.8\System.Windows.Forms.dll" Private="False" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.4" ExcludeAssets="runtime" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Component\ModelOptions\" />
   </ItemGroup>
 
 </Project>
