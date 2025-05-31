@@ -45,7 +45,6 @@ namespace PointCloudDiffusion.Component.ExternalProcess
                     processOutput: line =>
                     {
                         processOutput.Add(line);
-                        log.Add(line);
                         Grasshopper.Instances.DocumentEditor.Invoke(new Action(() =>
                         {
                             this.OnPingDocument().ScheduleSolution(1, doc =>
@@ -57,7 +56,6 @@ namespace PointCloudDiffusion.Component.ExternalProcess
                     processError: line =>
                     {
                         processError.Add(line);
-                        Rhino.RhinoApp.WriteLine(line);
                         Grasshopper.Instances.DocumentEditor.Invoke(new Action(() =>
                         {
                             this.OnPingDocument().ScheduleSolution(1, doc =>

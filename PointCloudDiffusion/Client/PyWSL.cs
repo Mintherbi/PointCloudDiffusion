@@ -21,7 +21,7 @@ namespace PointCloudDiffusion.Client
             var psi = new ProcessStartInfo
             {
                 FileName = "wsl",
-                Arguments = $"python3 {scriptPath} {args}",
+                Arguments = $"python3 -u {scriptPath} {args}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -39,13 +39,13 @@ namespace PointCloudDiffusion.Client
             process.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                    processOutput?.Invoke($"[Python Output] {e.Data}");
+                    processOutput?.Invoke($"[Output] {e.Data}");
             };
 
             process.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                    processError?.Invoke($"[Python Error] {e.Data}");
+                    processError?.Invoke($"[Error] {e.Data}");
             };
 
             process.Exited += (sender, e) =>
