@@ -7,7 +7,7 @@ using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 
-using static Diffusion3DPrinting.Utils.Utils;
+using static PointCloudDiffusion.Utils.Utils;
 
 namespace PointCloudDiffusion.Component.DataProcess
 {

@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using System.IO;
-using System.Text.Json;
-using System.Net.Http;
-
-using Grasshopper;
+﻿using Grasshopper;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
-using Grasshopper.Kernel.Types;
-using Rhino.Geometry;
-
-using NumSharp;
 using Grasshopper.Kernel.Geometry;
+using Grasshopper.Kernel.Types;
+using NumSharp;
+using Rhino.Geometry;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace Diffusion3DPrinting.Utils
+namespace PointCloudDiffusion.Utils
 {
     public static class Utils
     {
@@ -87,6 +86,57 @@ namespace Diffusion3DPrinting.Utils
         [DllImport(@"C:\Users\jord9\source\repos\Mintherbi\PointCloudDiffusion\x64\Debug\ParallelVectorCalculation.dll")]
         public static extern void BlockVectorAdd(double[,] point1, double[,] point2, int len, double[,] result);
 
+
+        public static List<PythonArg> ParseArguments(string pyFilePath)
+        {
+            var args = new List<PythonArg>();
+            var lines = File.ReadAllLines(pyFilePath);
+
+            var argPattern = new Regex(@"add_argument\(['""]--(?<name>[^'""]+)['""],\s*(?<options>.*?)\)");
+            var typePattern = new Regex(@"type\s*=\s*(?<type>\w+)");
+            var defaultPattern = new Regex(@"default\s*=\s*(?<default>[^,\)]+)");
+            var choicesPattern = new Regex(@"choices\s*=\s*\[(?<choices>[^\]]+)\]");
+
+            foreach (var line in lines)
+            {
+                var match = argPattern.Match(line);
+                if (!match.Success) continue;
+
+                var name = match.Groups["name"].Value;
+                var options = match.Groups["options"].Value;
+
+                var typeMatch = typePattern.Match(options);
+                var defaultMatch = defaultPattern.Match(options);
+                var choicesMatch = choicesPattern.Match(options);
+
+                var arg = new PythonArg
+                {
+                    Name = name,
+                    Type = typeMatch.Success ? typeMatch.Groups["type"].Value : "str",
+                    Default = defaultMatch.Success ? defaultMatch.Groups["default"].Value.Trim() : null
+                };
+
+                if (choicesMatch.Success)
+                {
+                    var choiceStr = choicesMatch.Groups["choices"].Value;
+                    arg.Choices = choiceStr.Split(',')
+                                           .Select(s => s.Trim())
+                                           .ToList();
+                }
+
+                args.Add(arg);
+            }
+
+            return args;
+        }
+    }
+
+    public class PythonArg
+    {
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Default { get; set; }
+        public List<string> Choices { get; set; } = new();
     }
 
 }

@@ -74,13 +74,13 @@ namespace PointCloudDiffusion.Client
             process.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                    output.AppendLine($"[Python Output] {e.Data}");
+                    output.AppendLine($"[Output] {e.Data}");
             };
 
             process.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                    error.AppendLine($"[Python Error] {e.Data}");
+                    error.AppendLine($"[Error] {e.Data}");
             };
             process.Start();
             process.BeginOutputReadLine();

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-using static Diffusion3DPrinting.Utils.Utils;
+using static PointCloudDiffusion.Utils.Utils;
 
 namespace PointCloudDiffusion.Component.Misc
 {
