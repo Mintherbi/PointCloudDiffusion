@@ -137,6 +137,8 @@ namespace PointCloudDiffusion.Utils
         public string Type { get; set; }
         public string Default { get; set; }
         public List<string> Choices { get; set; } = new();
+        public object Value { get; set; }
+
     }
 
 }

@@ -141,6 +141,11 @@ namespace PointCloudDiffusion.Component.Train
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            for (int i = 0; i < this.Params.Count())
+            {
+                if (!DA.GetData(i, parsedArgs[i].Value)) ;
+            }
+
             DA.SetData(0, SelectedFilePath);
 
         }
@@ -170,10 +175,12 @@ namespace PointCloudDiffusion.Component.Train
         {
             try
             {
-                switch (type.ToLower())
+                raw = raw.Trim();
+
+                switch (type)
                 {
                     case "int":
-                        return int.Parse(raw);
+                        return EvaluateIntExpression(raw);
                     case "float":
                     case "double":
                         return double.Parse(raw, CultureInfo.InvariantCulture);
@@ -187,6 +194,23 @@ namespace PointCloudDiffusion.Component.Train
             catch
             {
                 return raw;
+            }
+        }
+
+        private int EvaluateIntExpression(string expression)
+        {
+            try
+            {
+                if (expression == "float('inf'")
+                    return int.MaxValue;
+                expression = expression.Replace("THOUSAND", "1000");
+                var dataTable = new System.Data.DataTable();
+                var result = dataTable.Compute(expression, null);
+                return Convert.ToInt32(result);
+            }
+            catch
+            {
+                throw new FormatException($"Unable to evaluate expression: {expression}");
             }
         }
     }
