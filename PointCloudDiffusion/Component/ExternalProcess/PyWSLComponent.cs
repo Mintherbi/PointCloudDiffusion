@@ -10,6 +10,7 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 using PointCloudDiffusion.Client;
+using static PointCloudDiffusion.Utils.Utils;
 
 namespace PointCloudDiffusion.Component.ExternalProcess
 {
@@ -26,7 +27,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         }
 
         string scriptPath;
-        string scriptArgs;
+        List<PythonArg> scriptArgs;
 
         List<string> processOutput = new List<string>();
         List<string> processError = new List<string>();
@@ -39,7 +40,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         {
             Task.Run(async () =>
             {
-                PyWSL pyWSL = new PyWSL(scriptPath, scriptArgs);
+                PyWSL pyWSL = new PyWSL(scriptPath, ToCommandLineArguments(scriptArgs));
 
                 await pyWSL.AsyncRun(
                     processOutput: line =>
@@ -78,7 +79,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
             string Output;
             string Error;
 
-            PyWSL pyWSL = new PyWSL(scriptPath, scriptArgs);
+            PyWSL pyWSL = new PyWSL(scriptPath, ToCommandLineArguments(scriptArgs));
 
             (Output, Error) = pyWSL.Run();
 
@@ -92,7 +93,9 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("FilePath", "FP", "", GH_ParamAccess.item, "/mnt/c/Users/jord9/source/repos/Mintherbi/PointCloudDiffusion/Hello/Hello.py");   
+            pManager.AddTextParameter("FilePath", "FP", "", GH_ParamAccess.item, "/mnt/c/Users/jord9/source/repos/Mintherbi/PointCloudDiffusion/Hello/Hello.py");
+            pManager.AddGenericParameter("Arguments", "Args", "", GH_ParamAccess.list);
+            pManager.AddTextParameter("CondaEnv", "Env", "", GH_ParamAccess.item, "dpm-pc-gen");
         }
 
         /// <summary>
@@ -112,6 +115,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             if (!DA.GetData(0, ref scriptPath)) { return; }
+            if (!DA.GetDataList(1, scriptArgs)) { return; }
 
             DA.SetDataList(1, processOutput);
             DA.SetDataList(2, processError);

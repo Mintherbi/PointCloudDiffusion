@@ -6,8 +6,9 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 using PointCloudDiffusion.Client;
+using static PointCloudDiffusion.Utils.Utils;
 
-namespace PointCloudDiffusion.Component.Misc
+namespace PointCloudDiffusion.Component.Train
 {
     public class CreateVirtualEnvComponent : GH_Component
     {
@@ -32,16 +33,16 @@ namespace PointCloudDiffusion.Component.Misc
         {
             Task.Run(async () =>
             {
-                CondaCreateEnv condaCreateEnv = new CondaCreateEnv(ymlPath);
+                CondaCreateEnv condaCreateEnv = new CondaCreateEnv(ConvertWindowsPathToLinux(ymlPath));
                 await condaCreateEnv.AsyncRun(
                     processError: line =>
                     {
                         processError.Add(line);
                         Grasshopper.Instances.DocumentEditor.Invoke(new Action(() =>
                         {
-                            this.OnPingDocument().ScheduleSolution(1, doc =>
+                            OnPingDocument().ScheduleSolution(1, doc =>
                             {
-                                this.ExpireSolution(false);
+                                ExpireSolution(false);
                             });
                         }));
                     }                        
@@ -52,7 +53,7 @@ namespace PointCloudDiffusion.Component.Misc
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("CondaEnvPath", "yml", "Path of environment.yml file", GH_ParamAccess.item,
                 "/mnt/c/Users/jord9/source/repos/Mintherbi/PointCloudDiffusion/DPM3D/env.yml");
@@ -61,7 +62,7 @@ namespace PointCloudDiffusion.Component.Misc
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("ProcessError", "Err", "Error from Conda", GH_ParamAccess.list);
         }

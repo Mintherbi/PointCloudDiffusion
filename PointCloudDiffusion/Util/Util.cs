@@ -1,21 +1,14 @@
-﻿using Grasshopper;
-using Grasshopper.Kernel;
-using Grasshopper.Kernel.Data;
-using Grasshopper.Kernel.Geometry;
-using Grasshopper.Kernel.Types;
-using NumSharp;
+﻿using NumSharp;
 using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Globalization;
+
 
 namespace PointCloudDiffusion.Utils
 {
@@ -129,7 +122,104 @@ namespace PointCloudDiffusion.Utils
 
             return args;
         }
+
+        public static object ConvertDefault(string type, string raw)
+        {
+            try
+            {
+                raw = raw.Trim();
+
+                switch (type)
+                {
+                    case "int":
+                        return EvaluateIntExpression(raw);
+                    case "float":
+                    case "double":
+                        return double.Parse(raw, CultureInfo.InvariantCulture);
+                    case "bool":
+                    case "eval":
+                        return bool.Parse(raw);
+                    default:
+                        return raw;
+                }
+            }
+            catch
+            {
+                return raw;
+            }
+        }
+
+        public static int EvaluateIntExpression(string expression)
+        {
+            try
+            {
+                if (expression == "float('inf'")
+                    return int.MaxValue;
+                expression = expression.Replace("THOUSAND", "1000");
+                var dataTable = new System.Data.DataTable();
+                var result = dataTable.Compute(expression, null);
+                return Convert.ToInt32(result);
+            }
+            catch
+            {
+                throw new FormatException($"Unable to evaluate expression: {expression}");
+            }
+        }
+
+        public static string ConvertWindowsPathToLinux(string windowsPath)
+        {
+            if (string.IsNullOrWhiteSpace(windowsPath)) return "";
+
+            string path = windowsPath.Replace("\\", "/"); // 역슬래시 → 슬래시
+            if (Regex.IsMatch(path, @"^[a-zA-Z]:"))
+            {
+                // 드라이브 문자 추출
+                char driveLetter = char.ToLower(path[0]);
+                path = path.Substring(2); // "C:" 제거
+                path = $"/mnt/{driveLetter}{path}";
+            }
+
+            return path;
+        }
+
+        public static string ToCommandLineArguments(List<PythonArg> args)
+        {
+            var parts = new List<string>();
+
+            foreach (var arg in args)
+            {
+                if (arg.Value == null)
+                    continue;
+
+                string key = $"--{arg.Name}";
+                string val;
+
+                if (arg.Value is bool b)
+                {
+                    val = b ? "True" : "False"; // Python 쪽 eval 타입 대응
+                }
+                else if (arg.Value is List<string> list)
+                {
+                    val = string.Join(" ", list.Select(s => s.Contains(' ') ? $"\"{s}\"" : s));
+                }
+                else if (arg.Value is double d)
+                {
+                    val = d.ToString("G", System.Globalization.CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    val = arg.Value.ToString();
+                }
+
+                parts.Add($"{key} {val}");
+            }
+
+            return string.Join(" ", parts);
+        }
     }
+
+
+}
 
     public class PythonArg
     {
@@ -141,4 +231,4 @@ namespace PointCloudDiffusion.Utils
 
     }
 
-}
+

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
-
+using static PointCloudDiffusion.Utils.Utils;
 namespace PointCloudDiffusion.Client
 {
     public class CondaCreateEnv

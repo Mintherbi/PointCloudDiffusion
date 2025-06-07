@@ -58,7 +58,6 @@ namespace PointCloudDiffusion.Component.Train
             SelectedFilePath = filePath;
             parsedArgs = ParseArguments(filePath);
 
-            // 기존 입력 파라미터 제거
             this.Params.Input.Clear();
 
             foreach (var arg in parsedArgs)
@@ -70,8 +69,8 @@ namespace PointCloudDiffusion.Component.Train
                 }
             }
 
-            this.Params.OnParametersChanged(); // 슬롯 UI 업데이트
-            this.ExpireSolution(true);        // 컴포넌트 다시 실행
+            this.Params.OnParametersChanged(); 
+            this.ExpireSolution(true);        
         }
 
         /// <summary>
@@ -114,7 +113,6 @@ namespace PointCloudDiffusion.Component.Train
             param.Name = arg.Name;
             param.NickName = arg.Name;
             param.Description = $"Default: {arg.Default}";
-            param.Access = GH_ParamAccess.item;
 
             if (arg.Default != null)
             {
@@ -133,6 +131,8 @@ namespace PointCloudDiffusion.Component.Train
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("SelectedFilePath", "SelFile", "Selected File Path", GH_ParamAccess.item);
+            pManager.AddGenericParameter("Arguments", "Args", "Arguments for python", GH_ParamAccess.list);
+            pManager.AddTextParameter("ArgCL", "ArgCL", "Arguments for CommandLine", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -141,13 +141,46 @@ namespace PointCloudDiffusion.Component.Train
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            for (int i = 0; i < this.Params.Count())
+            for (int i = 0; i < parsedArgs.Count; i++)
             {
-                if (!DA.GetData(i, parsedArgs[i].Value)) ;
+                var arg = parsedArgs[i];
+                object val = null;
+
+                // 타입에 따라 인풋 값 읽기
+                switch (arg.Type.ToLower())
+                {
+                    case "int":
+                        int iVal = 0;
+                        if (DA.GetData(i, ref iVal)) val = iVal;
+                        break;
+                    case "float":
+                    case "double":
+                        double dVal = 0;
+                        if (DA.GetData(i, ref dVal)) val = dVal;
+                        break;
+                    case "bool":
+                    case "eval":
+                        bool bVal = false;
+                        if (DA.GetData(i, ref bVal)) val = bVal;
+                        break;
+                    case "str_list":
+                        List<string> listVal = new();
+                        if (DA.GetDataList(i, listVal)) val = listVal;
+                        break;
+                    default:
+                        string sVal = null;
+                        if (DA.GetData(i, ref sVal)) val = sVal;
+                        break;
+                }
+
+                // 입력값이 있으면 Value에 반영
+                if (val != null)
+                    arg.Value = val;
             }
 
-            DA.SetData(0, SelectedFilePath);
-
+            DA.SetData(0, ConvertWindowsPathToLinux(SelectedFilePath));
+            DA.SetDataList(1, parsedArgs);
+            DA.SetData(2, ToCommandLineArguments(parsedArgs));
         }
 
         /// <summary>
@@ -171,68 +204,26 @@ namespace PointCloudDiffusion.Component.Train
             get { return new Guid("39DFDB9D-4210-489B-80B6-7B53A0D08B70"); }
         }
 
-        private object ConvertDefault(string type, string raw)
-        {
-            try
-            {
-                raw = raw.Trim();
 
-                switch (type)
+        public class DoubleClickComponentAttributes : GH_ComponentAttributes
+        {
+            public DoubleClickComponentAttributes(IGH_Component component) : base(component) { }
+            public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)
+            {
+                var dialog = new OpenFileDialog();
+                dialog.Filter = "Python Files (*.py)|*.py|All Files (*.*)|*.*";
+                dialog.Title = "Select a Python script";
+
+                if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    case "int":
-                        return EvaluateIntExpression(raw);
-                    case "float":
-                    case "double":
-                        return double.Parse(raw, CultureInfo.InvariantCulture);
-                    case "bool":
-                    case "eval":
-                        return bool.Parse(raw);
-                    default:
-                        return raw;
+                    if (Owner is ModelOptionComponent comp)
+                    {
+                        comp.ReloadParametersFromFile(dialog.FileName);
+                    }
                 }
-            }
-            catch
-            {
-                return raw;
-            }
-        }
 
-        private int EvaluateIntExpression(string expression)
-        {
-            try
-            {
-                if (expression == "float('inf'")
-                    return int.MaxValue;
-                expression = expression.Replace("THOUSAND", "1000");
-                var dataTable = new System.Data.DataTable();
-                var result = dataTable.Compute(expression, null);
-                return Convert.ToInt32(result);
+                return GH_ObjectResponse.Handled;
             }
-            catch
-            {
-                throw new FormatException($"Unable to evaluate expression: {expression}");
-            }
-        }
-    }
-
-    public class DoubleClickComponentAttributes : GH_ComponentAttributes
-    {
-        public DoubleClickComponentAttributes(IGH_Component component) : base(component) { }
-        public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)
-        {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "Python Files (*.py)|*.py|All Files (*.*)|*.*";
-            dialog.Title = "Select a Python script";
-
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                if (Owner is ModelOptionComponent comp)
-                {
-                    comp.ReloadParametersFromFile(dialog.FileName);
-                }                
-            }
-
-            return GH_ObjectResponse.Handled;
         }
     }
 }
