@@ -27,7 +27,8 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         }
 
         string scriptPath;
-        List<PythonArg> scriptArgs;
+        string scriptArgs;
+        string condaEnv;
 
         List<string> processOutput = new List<string>();
         List<string> processError = new List<string>();
@@ -40,7 +41,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         {
             Task.Run(async () =>
             {
-                PyWSL pyWSL = new PyWSL(scriptPath, ToCommandLineArguments(scriptArgs));
+                PyWSL pyWSL = new PyWSL(scriptPath, scriptArgs, condaEnv);
 
                 await pyWSL.AsyncRun(
                     processOutput: line =>
@@ -79,7 +80,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
             string Output;
             string Error;
 
-            PyWSL pyWSL = new PyWSL(scriptPath, ToCommandLineArguments(scriptArgs));
+            PyWSL pyWSL = new PyWSL(scriptPath, scriptArgs);
 
             (Output, Error) = pyWSL.Run();
 
@@ -94,7 +95,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("FilePath", "FP", "", GH_ParamAccess.item, "/mnt/c/Users/jord9/source/repos/Mintherbi/PointCloudDiffusion/Hello/Hello.py");
-            pManager.AddGenericParameter("Arguments", "Args", "", GH_ParamAccess.list);
+            pManager.AddTextParameter("Arguments", "Args", "", GH_ParamAccess.item);
             pManager.AddTextParameter("CondaEnv", "Env", "", GH_ParamAccess.item, "dpm-pc-gen");
         }
 
@@ -115,7 +116,8 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             if (!DA.GetData(0, ref scriptPath)) { return; }
-            if (!DA.GetDataList(1, scriptArgs)) { return; }
+            if (!DA.GetData(1, ref scriptArgs)) { return; }
+            if (!DA.GetData(2, ref condaEnv)) { return; }
 
             DA.SetDataList(1, processOutput);
             DA.SetDataList(2, processError);

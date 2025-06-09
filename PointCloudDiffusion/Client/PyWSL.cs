@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Text;
 
 namespace PointCloudDiffusion.Client
 {
@@ -14,14 +13,14 @@ namespace PointCloudDiffusion.Client
         private Process process;
 
         //Constructor
-        public PyWSL(string scriptPath, string args = null)
+        public PyWSL(string scriptPath, string args = null, string conda = "base")
         {
             this.process = new Process();
 
             var psi = new ProcessStartInfo
             {
                 FileName = "wsl",
-                Arguments = $"python3 -u {scriptPath} {args}",
+                Arguments = $"source ~/.zshrc && conda activate {conda} && python3 -u {scriptPath} {args}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
