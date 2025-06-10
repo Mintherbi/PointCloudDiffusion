@@ -7,19 +7,19 @@ using System.Diagnostics;
 using static PointCloudDiffusion.Utils.Utils;
 namespace PointCloudDiffusion.Client
 {
-    public class CondaCreateEnv
+    public class CondaCheckEnv
     {
          private Process process;
 
         //Constructor
-        public CondaCreateEnv(string ymlPath)
+        public CondaCheckEnv()
         {
             this.process = new Process();
 
             var psi = new ProcessStartInfo
             {
                 FileName = "wsl",
-                Arguments = $"zsh -c \"source ~/.zshrc && conda deactivate && conda env create --file=\"{ymlPath}\"\"",
+                Arguments = $"zsh -c \"source ~/.zshrc && conda env list\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -30,20 +30,14 @@ namespace PointCloudDiffusion.Client
         }
 
 
-        public async Task AsyncRun(Action<string> processOutput, Action<string> processError)
+        public async Task AsyncRun(Action<string> EnvList)
         {
             var tcs = new TaskCompletionSource<bool>();
 
             this.process.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                    processOutput?.Invoke($"[Output] {e.Data}");
-            };
-
-            this.process.ErrorDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                    processError?.Invoke($"[Error] {e.Data}");
+                    EnvList?.Invoke($"{e.Data}");
             };
 
             this.process.Exited += (sender, e) =>

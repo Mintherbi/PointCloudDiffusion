@@ -12,60 +12,43 @@ using Rhino.Geometry;
 using PointCloudDiffusion.Client;
 using static PointCloudDiffusion.Utils.Utils;
 
-namespace PointCloudDiffusion.Component.ExternalProcess
+namespace PointCloudDiffusion.Component.Train
 {
-    public class PyWSLComponent : GH_Component
+    public class CheckEnvironment : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
-        public PyWSLComponent()
-          : base("PythonInWsl", "PyWSL",
-              "Execute Python in WSl Environment",
-              "ARTs Lab", "Execution")
+        public CheckEnvironment()
+          : base("CheckEnvironment", "Env",
+              "Check Conda Environment that is Installed",
+              "ARTs Lab", "Train")
         {
         }
 
-        string scriptPath;
-        string scriptArgs;
-        string condaEnv;
-
-        List<string> processOutput;
-        List<string> processError;
+        List<string> EnvList;
 
         public override void CreateAttributes()
         {
-            m_attributes = new CustomUI.ButtonUIAttributes(this, "RUN!", AsyncRunWSL, "RunPythonScript");
+            m_attributes = new CustomUI.ButtonUIAttributes(this, "CheckEnv", AsyncRunWSL, "Check Conda Environment");
         }
         public void AsyncRunWSL()
         {
             Task.Run(async () =>
             {
-                PyWSL pyWSL = new PyWSL(scriptPath, scriptArgs, condaEnv);
+                CondaCheckEnv CheckEnv = new CondaCheckEnv();
 
-                processOutput = new List<string>();
-                processError = new List<string>();
+                EnvList = new List<string>();
 
-                await pyWSL.AsyncRun(
-                    processOutput: line =>
+                await CheckEnv.AsyncRun(
+                    EnvList : line =>
                     {
-                        processOutput.Add(line);
+                        EnvList.Add(line);
                         Grasshopper.Instances.DocumentEditor.Invoke(new Action(() =>
                         {
                             this.OnPingDocument().ScheduleSolution(1, doc =>
                             {
                                 this.ExpireSolution(false); // false: 중간 갱신
-                            });
-                        }));
-                    },
-                    processError: line =>
-                    {
-                        processError.Add(line);
-                        Grasshopper.Instances.DocumentEditor.Invoke(new Action(() =>
-                        {
-                            this.OnPingDocument().ScheduleSolution(1, doc =>
-                            {
-                                this.ExpireSolution(false);
                             });
                         }));
                     }
@@ -78,28 +61,13 @@ namespace PointCloudDiffusion.Component.ExternalProcess
             });
         }
 
-        public void RunWSL()
-        {
-            string Output;
-            string Error;
 
-            PyWSL pyWSL = new PyWSL(scriptPath, scriptArgs);
-
-            (Output, Error) = pyWSL.Run();
-
-            processOutput.Add(Output);
-            processError.Add(Error);
-
-        }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("FilePath", "FP", "", GH_ParamAccess.item, "/mnt/c/Users/jord9/source/repos/Mintherbi/PointCloudDiffusion/Hello/Hello.py");
-            pManager.AddTextParameter("Arguments", "Args", "", GH_ParamAccess.item);
-            pManager.AddTextParameter("CondaEnv", "Env", "", GH_ParamAccess.item, "dpm-pc-gen");
         }
 
         /// <summary>
@@ -107,8 +75,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("ProcessOutput", "Out", "Process Output", GH_ParamAccess.item);
-            pManager.AddTextParameter("ProcessError", "Err", "Process Error", GH_ParamAccess.item);
+            pManager.AddTextParameter("EnvironmentList", "EnvList", "List of Conda Environment", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -117,12 +84,22 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            if (!DA.GetData(0, ref scriptPath)) { return; }
-            if (!DA.GetData(1, ref scriptArgs)) { return; }
-            if (!DA.GetData(2, ref condaEnv)) { return; }
+            List<string> environments = new List<string>();
+         
+            for (int i = 2; i < EnvList.Count; i++)
+            {
+                string line = EnvList[i].Trim();
+                if (string.IsNullOrWhiteSpace(line)) continue;
 
-            DA.SetDataList(1, processOutput);
-            DA.SetDataList(2, processError);
+                // 공백 기준으로 첫 단어 추출
+                string[] parts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 0)
+                {
+                    environments.Add(parts[0]);
+                }
+            }
+
+            DA.SetDataList(0, environments);
         }
 
         /// <summary>
@@ -143,7 +120,7 @@ namespace PointCloudDiffusion.Component.ExternalProcess
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("7B7BFE60-3B92-48FB-8832-C77956D7A0EC"); }
+            get { return new Guid("3E3A2342-5737-4C65-A7DD-1061C83891FC"); }
         }
     }
 }

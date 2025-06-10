@@ -28,13 +28,30 @@ namespace PointCloudDiffusion.Component.Train
         }
 
         string ymlPath = "";
-        List<string> processError = new List<string>();
+        List<string> processError;
+        List<string> processOutput;
         public void CreateCondaEnv()
         {
             Task.Run(async () =>
             {
+                processOutput = new List<string>();
+                processError = new List<string> ();
+
                 CondaCreateEnv condaCreateEnv = new CondaCreateEnv(ConvertWindowsPathToLinux(ymlPath));
                 await condaCreateEnv.AsyncRun(
+                    processOutput: line =>
+                    {
+                        processOutput.Add(line);
+                        
+                        Grasshopper.Instances.DocumentEditor.Invoke(new Action(() =>
+                        {
+                            OnPingDocument().ScheduleSolution(1, doc =>
+                            {
+                                ExpireSolution(false);
+                            });
+                        }));
+                    },
+
                     processError: line =>
                     {
                         processError.Add(line);
@@ -64,6 +81,7 @@ namespace PointCloudDiffusion.Component.Train
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
+            pManager.AddTextParameter("ProcessOutput", "Out", "Process from Conda", GH_ParamAccess.list);
             pManager.AddTextParameter("ProcessError", "Err", "Error from Conda", GH_ParamAccess.list);
         }
 
@@ -75,7 +93,8 @@ namespace PointCloudDiffusion.Component.Train
         {
             if (!DA.GetData(0, ref ymlPath)) { return; }
 
-            DA.SetDataList(0, processError);
+            DA.SetDataList(0, processOutput);
+            DA.SetDataList(1, processError);
         }
 
         /// <summary>

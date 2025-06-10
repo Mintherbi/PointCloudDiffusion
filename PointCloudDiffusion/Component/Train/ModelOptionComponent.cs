@@ -3,19 +3,12 @@ using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
 using Grasshopper.Kernel.Data;
-using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
 using System.Windows.Forms;
 
 using Grasshopper.Kernel.Parameters;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-
-using PointCloudDiffusion.Utils;
 using static PointCloudDiffusion.Utils.Utils;
 
 namespace PointCloudDiffusion.Component.Train
@@ -51,12 +44,19 @@ namespace PointCloudDiffusion.Component.Train
         /// parameters parsed from the specified file. After reloading, the component's UI is updated, and the solution
         /// is expired to trigger a re-execution of the component.</remarks>
         /// <param name="filePath">The path to the file containing the parameters to load. Must be a valid file path.</param>
+
         public void ReloadParametersFromFile(string filePath)
         {
-            if (!File.Exists(filePath)) return;
+            if (!File.Exists(filePath))
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "File does not exist.");
+                return;
+            }
 
             SelectedFilePath = filePath;
             parsedArgs = ParseArguments(filePath);
+
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"Parsed {parsedArgs.Count} arguments from file.");
 
             this.Params.Input.Clear();
 
@@ -66,13 +66,13 @@ namespace PointCloudDiffusion.Component.Train
                 if (param != null)
                 {
                     this.Params.RegisterInputParam(param);
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"Registered input param: {arg.Name} ({arg.Type})");
                 }
             }
 
-            this.Params.OnParametersChanged(); 
-            this.ExpireSolution(true);        
+            this.Params.OnParametersChanged();
+            this.ExpireSolution(true);
         }
-
         /// <summary>
         /// Creates a Grasshopper parameter based on the specified Python argument.
         /// </summary>
@@ -131,8 +131,7 @@ namespace PointCloudDiffusion.Component.Train
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("SelectedFilePath", "SelFile", "Selected File Path", GH_ParamAccess.item);
-            pManager.AddGenericParameter("Arguments", "Args", "Arguments for python", GH_ParamAccess.list);
-            pManager.AddTextParameter("ArgCL", "ArgCL", "Arguments for CommandLine", GH_ParamAccess.item);
+            pManager.AddTextParameter("Arguments", "Arg", "Arguments for CommandLine", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -146,7 +145,6 @@ namespace PointCloudDiffusion.Component.Train
                 var arg = parsedArgs[i];
                 object val = null;
 
-                // 타입에 따라 인풋 값 읽기
                 switch (arg.Type.ToLower())
                 {
                     case "int":
@@ -173,7 +171,6 @@ namespace PointCloudDiffusion.Component.Train
                         break;
                 }
 
-                // 입력값이 있으면 Value에 반영
                 if (val != null)
                     arg.Value = val;
             }
@@ -181,6 +178,7 @@ namespace PointCloudDiffusion.Component.Train
             DA.SetData(0, ConvertWindowsPathToLinux(SelectedFilePath));
             DA.SetDataList(1, parsedArgs);
             DA.SetData(2, ToCommandLineArguments(parsedArgs));
+            DA.SetDataList(3, parsedArgs);
         }
 
         /// <summary>

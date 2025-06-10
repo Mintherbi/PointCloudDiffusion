@@ -80,195 +80,275 @@ namespace PointCloudDiffusion.Utils
         public static extern void BlockVectorAdd(double[,] point1, double[,] point2, int len, double[,] result);
 
         /*
-                public static List<PythonArg> ParseArguments(string pyFilePath)
+        public static List<PythonArg> ParseArguments(string pyFilePath)
+        {
+            var args = new List<PythonArg>();
+
+            if (!File.Exists(pyFilePath)) return args;
+
+            string code = File.ReadAllText(pyFilePath);
+
+            // ArgumentParser 변수 이름 찾기
+            var parserNames = new List<string>();
+            var parserInitPattern = new Regex(@"(?<name>\w+)\s*=\s*argparse\.ArgumentParser", RegexOptions.Compiled);
+            foreach (Match match in parserInitPattern.Matches(code))
+                parserNames.Add(match.Groups["name"].Value);
+
+            if (parserNames.Count == 0)
+                parserNames.Add("parser"); // fallback
+
+            // 모든 add_argument(...) 구문을 멀티라인 포함해서 포착
+            var argPattern = new Regex(@"(?<parser>\w+)\.add_argument\((?<content>.*?)\)", RegexOptions.Singleline);
+            foreach (Match match in argPattern.Matches(code))
+            {
+                string parserName = match.Groups["parser"].Value;
+                string content = match.Groups["content"].Value;
+
+                if (!parserNames.Contains(parserName)) continue;
+
+                // --argname
+                var nameMatch = Regex.Match(content, @"['""]--(?<name>[^'""]+)['""]");
+                if (!nameMatch.Success) continue;
+
+                var arg = new PythonArg
                 {
-                    var args = new List<PythonArg>();
-                    var lines = File.ReadAllLines(pyFilePath);
+                    Name = nameMatch.Groups["name"].Value,
+                    Type = null,
+                    Default = null
+                };
 
-                    var argPattern = new Regex(@"add_argument\(['""]--(?<name>[^'""]+)['""],\s*(?<options>.*?)\)");
-                    var typePattern = new Regex(@"type\s*=\s*(?<type>\w+)");
-                    var defaultPattern = new Regex(@"default\s*=\s*(?<default>[^,\)]+)");
-                    var choicesPattern = new Regex(@"choices\s*=\s*\[(?<choices>[^\]]+)\]");
-
-                    foreach (var line in lines)
-                    {
-                        var match = argPattern.Match(line);
-                        if (!match.Success) continue;
-
-                        var name = match.Groups["name"].Value;
-                        var options = match.Groups["options"].Value;
-
-                        var typeMatch = typePattern.Match(options);
-                        var defaultMatch = defaultPattern.Match(options);
-                        var choicesMatch = choicesPattern.Match(options);
-
-                        var arg = new PythonArg
-                        {
-                            Name = name,
-                            Type = typeMatch.Success ? typeMatch.Groups["type"].Value : "str",
-                            Default = defaultMatch.Success ? defaultMatch.Groups["default"].Value.Trim() : null
-                        };
-
-                        if (choicesMatch.Success)
-                        {
-                            var choiceStr = choicesMatch.Groups["choices"].Value;
-                            arg.Choices = choiceStr.Split(',')
-                                                   .Select(s => s.Trim())
-                                                   .ToList();
-                        }
-
-                        args.Add(arg);
-                    }
-
-                    return args;
+                // store_true / store_false
+                var storeTrue = Regex.IsMatch(content, @"action\s*=\s*['""]store_true['""]");
+                var storeFalse = Regex.IsMatch(content, @"action\s*=\s*['""]store_false['""]");
+                if (storeTrue || storeFalse)
+                {
+                    arg.Type = "bool";
+                    arg.Default = storeTrue ? "False" : "True";
                 }
 
+                // type
+                var typeMatch = Regex.Match(content, @"type\s*=\s*(?<type>\w+)");
+                if (typeMatch.Success)
+                    arg.Type = typeMatch.Groups["type"].Value;
+
+                // default
+                var defaultMatch = Regex.Match(content, @"default\s*=\s*(?<val>[^,\)\n]+)");
+                if (defaultMatch.Success)
+                    arg.Default = defaultMatch.Groups["val"].Value.Trim();
+
+                // choices
+                var choicesMatch = Regex.Match(content, @"choices\s*=\s*\[(?<choices>[^\]]+)\]");
+                if (choicesMatch.Success)
+                {
+                    var choiceStr = choicesMatch.Groups["choices"].Value;
+                    arg.Choices = choiceStr.Split(',')
+                                           .Select(s => s.Trim(' ', '\'', '"'))
+                                           .ToList();
+                }
+
+                // type 없으면 default로부터 유추
+                if (string.IsNullOrEmpty(arg.Type) && arg.Default != null)
+                {
+                    string d = arg.Default;
+                    if (int.TryParse(d, out _))
+                        arg.Type = "int";
+                    else if (double.TryParse(d, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
+                        arg.Type = "double";
+                    else if (d.Equals("True", StringComparison.OrdinalIgnoreCase) || d.Equals("False", StringComparison.OrdinalIgnoreCase))
+                        arg.Type = "bool";
+                    else
+                        arg.Type = "str";
+                }
+
+                // 값 초기화
+                arg.Value = ConvertDefault(arg.Type ?? "str", arg.Default);
+
+                args.Add(arg);
+            }
+
+            return args;
+        }
+
+        */
+
+        public static List<PythonArg> ParseArguments(string pyFilePath)
+        {
+            var args = new List<PythonArg>();
+            if (!File.Exists(pyFilePath)) return args;
+
+            string code = File.ReadAllText(pyFilePath);
+
+            // 1. ArgumentParser 이름 추출 (argparse, exp.argparse 등 모두 허용)
+            var parserNames = new List<string>();
+            var parserInitPattern = new Regex(@"(?<name>\w+)\s*=\s*(\w+\.)?ArgumentParser", RegexOptions.Compiled);
+            foreach (Match match in parserInitPattern.Matches(code))
+                parserNames.Add(match.Groups["name"].Value);
+
+            if (parserNames.Count == 0)
+                parserNames.Add("parser"); // fallback
+
+            // 2. add_argument(...) 전체 정규식 파싱 (멀티라인 지원)
+            var argPattern = new Regex(@"(?<parser>\w+)\.add_argument\((?<content>.*?)\)", RegexOptions.Singleline);
+            foreach (Match match in argPattern.Matches(code))
+            {
+                string parserName = match.Groups["parser"].Value;
+                string content = match.Groups["content"].Value;
+
+                if (!parserNames.Contains(parserName)) continue;
+
+                // --name
+                var nameMatch = Regex.Match(content, @"['""]--(?<name>[^'""]+)['""]");
+                if (!nameMatch.Success) continue;
+
+                var arg = new PythonArg
+                {
+                    Name = nameMatch.Groups["name"].Value,
+                    Type = null,
+                    Default = null
+                };
+
+                // store_true / store_false
+                bool isStoreTrue = Regex.IsMatch(content, @"action\s*=\s*['""]store_true['""]");
+                bool isStoreFalse = Regex.IsMatch(content, @"action\s*=\s*['""]store_false['""]");
+                if (isStoreTrue || isStoreFalse)
+                {
+                    arg.Type = "bool";
+                    arg.Default = isStoreTrue ? "False" : "True";
+                }
+
+                // type
+                var typeMatch = Regex.Match(content, @"type\s*=\s*(?<type>\w+)");
+                if (typeMatch.Success)
+                {
+                    string rawType = typeMatch.Groups["type"].Value;
+                    arg.Type = rawType == "eval" ? "bool" : rawType;
+                }
+
+                // default
+                var defaultMatch = Regex.Match(content, @"default\s*=\s*(?<val>[^,\)\n]+)");
+                if (defaultMatch.Success)
+                    arg.Default = defaultMatch.Groups["val"].Value.Trim();
+
+                // choices
+                var choicesMatch = Regex.Match(content, @"choices\s*=\s*\[(?<choices>[^\]]+)\]");
+                if (choicesMatch.Success)
+                {
+                    var choiceStr = choicesMatch.Groups["choices"].Value;
+                    arg.Choices = choiceStr.Split(',')
+                                           .Select(s => s.Trim(' ', '\'', '"'))
+                                           .ToList();
+                }
+
+                // type이 없으면 default를 기반으로 추론
+                if (string.IsNullOrEmpty(arg.Type) && arg.Default != null)
+                {
+                    string d = arg.Default;
+                    if (int.TryParse(d, out _))
+                        arg.Type = "int";
+                    else if (double.TryParse(d, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
+                        arg.Type = "double";
+                    else if (d.Equals("True", StringComparison.OrdinalIgnoreCase) || d.Equals("False", StringComparison.OrdinalIgnoreCase))
+                        arg.Type = "bool";
+                    else
+                        arg.Type = "str";
+                }
+
+                // 값 초기화
+                arg.Value = ConvertDefault(arg.Type ?? "str", arg.Default);
+
+                args.Add(arg);
+            }
+
+            return args;
+        }
+        /*
                 public static object ConvertDefault(string type, string raw)
                 {
                     try
-                    {
-                        raw = raw.Trim();
-
-                        switch (type)
                         {
-                            case "int":
-                                return EvaluateIntExpression(raw);
-                            case "float":
-                            case "double":
-                                return double.Parse(raw, CultureInfo.InvariantCulture);
-                            case "bool":
-                            case "eval":
-                                return bool.Parse(raw);
-                            default:
-                                return raw;
+                            raw = raw.Trim().Replace("THOUSAND", "1000");
+
+                            if (raw.Contains("float('inf'"))
+                                return int.MaxValue;
+
+                            switch (type.ToLower())
+                            {
+                                case "int":
+                                    return EvaluateIntExpression(raw);
+                                case "float":
+                                case "double":
+                                    return double.Parse(raw, CultureInfo.InvariantCulture);
+                                case "bool":
+                                case "eval":
+                                    return bool.Parse(raw);
+                                default:
+                                    return raw.Trim('\"', '\''); // 문자열 따옴표 제거
+                            }
+                        }
+                        catch
+                        {
+                            return raw;
                         }
                     }
-                    catch
-                    {
-                        return raw;
-                    }
-                }
 
                 public static int EvaluateIntExpression(string expression)
-                {
-                    try
                     {
-                        if (expression == "float('inf'")
-                            return int.MaxValue;
-                        expression = expression.Replace("THOUSAND", "1000");
-                        var dataTable = new System.Data.DataTable();
-                        var result = dataTable.Compute(expression, null);
-                        return Convert.ToInt32(result);
-                    }
-                    catch
-                    {
-                        throw new FormatException($"Unable to evaluate expression: {expression}");
-                    }
-                }
-        */
-        public static class ArgparseParser
-        {
-            public static List<PythonArg> ParseArguments(string pyFilePath)
-            {
-                var args = new List<PythonArg>();
-                var lines = File.ReadAllLines(pyFilePath);
-
-                // 1. ArgumentParser 변수 이름 찾기
-                var parserNames = new List<string>();
-                var parserInitPattern = new Regex(@"(?<name>\w+)\s*=\s*argparse\.ArgumentParser");
-
-                foreach (var line in lines)
-                {
-                    var initMatch = parserInitPattern.Match(line);
-                    if (initMatch.Success)
-                        parserNames.Add(initMatch.Groups["name"].Value);
-                }
-
-                if (parserNames.Count == 0)
-                    parserNames.Add("parser"); // fallback 기본값
-
-                // 2. add_argument(...) 파싱
-                foreach (var line in lines)
-                {
-                    foreach (var parserName in parserNames)
-                    {
-                        var argPattern = new Regex($@"{parserName}\.add_argument\(\s*['""]--(?<name>[^'""]+)['""],\s*(?<options>.*)\)");
-                        var match = argPattern.Match(line);
-                        if (!match.Success) continue;
-
-                        string name = match.Groups["name"].Value;
-                        string options = match.Groups["options"].Value;
-
-                        var typeMatch = Regex.Match(options, @"type\s*=\s*(\w+)");
-                        var defaultMatch = Regex.Match(options, @"default\s*=\s*([^,\)]+)");
-                        var choicesMatch = Regex.Match(options, @"choices\s*=\s*\[(?<choices>[^\]]+)\]");
-
-                        var arg = new PythonArg
+                        try
                         {
-                            Name = name,
-                            Type = typeMatch.Success ? typeMatch.Groups[1].Value : "str",
-                            Default = defaultMatch.Success ? defaultMatch.Groups[1].Value.Trim() : null
-                        };
-
-                        if (choicesMatch.Success)
-                        {
-                            var choiceStr = choicesMatch.Groups["choices"].Value;
-                            arg.Choices = choiceStr.Split(',')
-                                                   .Select(s => s.Trim(' ', '\'', '"'))
-                                                   .ToList();
+                            var dataTable = new System.Data.DataTable();
+                            var result = dataTable.Compute(expression, null);
+                            return Convert.ToInt32(result);
                         }
-
-                        args.Add(arg);
+                        catch
+                        {
+                            throw new FormatException($"Unable to evaluate expression: {expression}");
+                        }
                     }
-                }
+        */
 
-                return args;
-            }
+        public static object ConvertDefault(string type, string raw)
+        {
+            if (raw == null) return null;
 
-            public static object ConvertDefault(string type, string raw)
+            raw = raw.Trim().Replace("THOUSAND", "1000");
+
+            if (raw.Contains("float('inf'"))
+                return int.MaxValue;
+
+            try
             {
-                try
+                switch (type.ToLower())
                 {
-                    raw = raw.Trim().Replace("THOUSAND", "1000");
-
-                    if (raw.Contains("float('inf'"))
-                        return int.MaxValue;
-
-                    switch (type.ToLower())
-                    {
-                        case "int":
-                            return EvaluateIntExpression(raw);
-                        case "float":
-                        case "double":
-                            return double.Parse(raw, CultureInfo.InvariantCulture);
-                        case "bool":
-                        case "eval":
-                            return bool.Parse(raw);
-                        default:
-                            return raw.Trim('\"', '\''); // 문자열 따옴표 제거
-                    }
-                }
-                catch
-                {
-                    return raw;
+                    case "int":
+                        return EvaluateIntExpression(raw);
+                    case "float":
+                    case "double":
+                        return double.Parse(raw, CultureInfo.InvariantCulture);
+                    case "bool":
+                        return bool.Parse(raw);
+                    default:
+                        return raw.Trim('\"', '\'');
                 }
             }
-
-            public static int EvaluateIntExpression(string expression)
+            catch
             {
-                try
-                {
-                    var dataTable = new System.Data.DataTable();
-                    var result = dataTable.Compute(expression, null);
-                    return Convert.ToInt32(result);
-                }
-                catch
-                {
-                    throw new FormatException($"Unable to evaluate expression: {expression}");
-                }
+                return raw;
             }
         }
 
+        public static int EvaluateIntExpression(string expression)
+        {
+            try
+            {
+                var dataTable = new System.Data.DataTable();
+                var result = dataTable.Compute(expression, null);
+                return Convert.ToInt32(result);
+            }
+            catch
+            {
+                throw new FormatException($"Unable to evaluate expression: {expression}");
+            }
+        }
 
         public static string ConvertWindowsPathToLinux(string windowsPath)
         {
