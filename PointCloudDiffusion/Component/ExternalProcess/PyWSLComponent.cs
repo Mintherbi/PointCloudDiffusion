@@ -121,8 +121,8 @@ namespace PointCloudDiffusion.Component.ExternalProcess
             if (!DA.GetData(1, ref scriptArgs)) { return; }
             if (!DA.GetData(2, ref condaEnv)) { return; }
 
-            DA.SetDataList(1, processOutput);
-            DA.SetDataList(2, processError);
+            DA.SetDataList(0, processOutput);
+            DA.SetDataList(1, processError);
         }
 
         /// <summary>

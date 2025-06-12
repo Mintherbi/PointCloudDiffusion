@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Grasshopper.Kernel.Parameters;
 using System.IO;
 using static PointCloudDiffusion.Utils.Utils;
+using Grasshopper.Kernel.Types;
 
 namespace PointCloudDiffusion.Component.Train
 {
@@ -55,7 +56,6 @@ namespace PointCloudDiffusion.Component.Train
 
             SelectedFilePath = filePath;
             parsedArgs = ParseArguments(filePath);
-
             AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, $"Parsed {parsedArgs.Count} arguments from file.");
 
             this.Params.Input.Clear();
@@ -83,6 +83,9 @@ namespace PointCloudDiffusion.Component.Train
         /// <returns>An <see cref="IGH_Param"/> instance configured according to the type and properties of the provided
         /// <paramref name="arg"/>. The parameter's type is determined by the argument's type (e.g., "int" maps to <see
         /// cref="Param_Integer"/>).</returns>
+        /// 
+
+/*
         private IGH_Param CreateParamFromArg(PythonArg arg)
         {
             IGH_Param param;
@@ -122,8 +125,61 @@ namespace PointCloudDiffusion.Component.Train
 
             return param;
         }
+*/
+        private IGH_Param CreateParamFromArg(PythonArg arg)
+        {
+            IGH_Param param;
+            switch (arg.Type)
+            {
+                case "int":
+                    param = new Param_Integer { Access = GH_ParamAccess.item };
+                    break;
+                case "float":
+                case "double":
+                    param = new Param_Number { Access = GH_ParamAccess.item };
+                    break;
+                case "bool":
+                    param = new Param_Boolean { Access = GH_ParamAccess.item };
+                    break;
+                case "str":
+                    param = new Param_String { Access = GH_ParamAccess.item };
+                    break;
+                case "str_list":
+                    param = new Param_String { Access = GH_ParamAccess.list };
+                    break;
+                default:
+                    param = new Param_String();
+                    break;
+            }
 
+            param.Name = arg.Name;
+            param.NickName = arg.Name;
+            param.Description = $"Default: {arg.Default}";
 
+            if (arg.Default != null)
+            {
+                var val = ConvertDefault(arg.Type, arg.Default);
+                var path = new GH_Path(0);
+
+                switch (param)
+                {
+                    case Param_Integer p when val is int i:
+                        p.AddVolatileData(path, 0, new GH_Integer(i));
+                        break;
+                    case Param_Number p when val is double d:
+                        p.AddVolatileData(path, 0, new GH_Number(d));
+                        break;
+                    case Param_Boolean p when val is bool b:
+                        p.AddVolatileData(path, 0, new GH_Boolean(b));
+                        break;
+                    case Param_String p:
+                        p.AddVolatileData(path, 0, new GH_String(val.ToString()));
+                        break;
+                }
+            }
+
+            return param;
+        }
 
         /// <summary>
         /// Registers all the output parameters for this component.
@@ -140,6 +196,7 @@ namespace PointCloudDiffusion.Component.Train
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+
             for (int i = 0; i < parsedArgs.Count; i++)
             {
                 var arg = parsedArgs[i];
@@ -157,7 +214,6 @@ namespace PointCloudDiffusion.Component.Train
                         if (DA.GetData(i, ref dVal)) val = dVal;
                         break;
                     case "bool":
-                    case "eval":
                         bool bVal = false;
                         if (DA.GetData(i, ref bVal)) val = bVal;
                         break;
@@ -176,9 +232,7 @@ namespace PointCloudDiffusion.Component.Train
             }
 
             DA.SetData(0, ConvertWindowsPathToLinux(SelectedFilePath));
-            DA.SetDataList(1, parsedArgs);
-            DA.SetData(2, ToCommandLineArguments(parsedArgs));
-            DA.SetDataList(3, parsedArgs);
+            DA.SetData(1, ToCommandLineArguments(parsedArgs));
         }
 
         /// <summary>
